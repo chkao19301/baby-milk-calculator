@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="appTitle">🍼 奶粉沖泡計算機 (10倍數)</title>
+    <style>
+        /* 樣式與前一版保持一致 */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #fce4ec; /* 柔和粉色背景 */
+            color: #ad1457;
+        }
+
+        .calculator-container {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            position: relative; /* 用於定位語言切換按鈕 */
+        }
+
+        h1 {
+            color: #880e4f;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+        }
+
+        /* 語言切換按鈕樣式 */
+        #language-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 8px 12px;
+            background-color: #d81b60;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #language-toggle:hover {
+            background-color: #880e4f;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #c2185b;
+        }
+
+        /* 下拉式選單樣式 */
+        select {
+            width: 100%;
+            padding: 12px 10px;
+            border: 2px solid #f48fb1;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1.1em;
+            background-color: #fce4ec;
+            min-height: 48px; 
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        .select-wrapper {
+            position: relative;
+        }
+        .select-wrapper::after {
+            content: '▼';
+            font-size: 1em;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #c2185b;
+        }
+
+        /* 按鈕樣式 */
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #ec407a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #d81b60;
+        }
+
+        /* 結果顯示區 */
+        #result_area {
+            margin-top: 30px;
+            padding: 15px;
+            border: 2px dashed #ec407a;
+            border-radius: 8px;
+            text-align: center;
+            background-color: #fff8e1;
+            min-height: 100px;
+        }
+
+        #result_area p {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #880e4f;
+        }
+        #result_area strong {
+            font-size: 1.4em;
+            color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-container">
+        
+        <button id="language-toggle" onclick="switchLanguage()">English</button>
+
+        <h1 id="mainTitle">👶 奶粉沖泡水量計算 (10ml 單位)</h1>
+
+        <div class="form-group">
+            <label id="labelMilkAmount" for="milk_amount">總奶量 (ml):</label>
+            <div class="select-wrapper">
+                <select id="milk_amount" name="milk_amount">
+                    <option value="120">120 ml</option>
+                    <option value="150">150 ml</option>
+                    <option value="180" selected>180 ml</option>
+                    <option value="210">210 ml</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label id="labelHotWater" for="hot_water_temp">熱水溫度 (℃):</label>
+            <div class="select-wrapper">
+                <select id="hot_water_temp" name="hot_water_temp">
+                    <option value="70">70 ℃</option>
+                    <option value="80" selected>80 ℃</option>
+                    <option value="90">90 ℃</option>
+                    <option value="100">100 ℃</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label id="labelColdWater" for="cold_water_temp">冷水溫度 (℃):</label>
+            <div class="select-wrapper">
+                <select id="cold_water_temp" name="cold_water_temp">
+                    <option value="16">16 ℃</option>
+                    <option value="18">18 ℃</option>
+                    <option value="20" selected>20 ℃</option>
+                    <option value="22">22 ℃</option>
+                    <option value="24">24 ℃</option>
+                    <option value="26">26 ℃</option>
+                </select>
+            </div>
+        </div>
+
+        <button id="calculateButton" onclick="calculateWaterAmount()">
+            計算最佳 10ml 倍數配比
+        </button>
+        
+        <div id="result_area">
+            <p id="initialPrompt">請選擇上方參數並點擊「計算」</p>
+        </div>
+        
+    </div>
+
+    <script>
+        // --- 語言字典 ---
+        const languageData = {
+            'zh': {
+                appTitle: '🍼 奶粉沖泡計算機 (10倍數)',
+                mainTitle: '👶 奶粉沖泡水量計算 (10ml 單位)',
+                labelMilkAmount: '總奶量 (ml):',
+                labelHotWater: '熱水溫度 (℃):',
+                labelColdWater: '冷水溫度 (℃):',
+                calculateButton: '計算最佳 10ml 倍數配比',
+                initialPrompt: '請選擇上方參數並點擊「計算」',
+                resultBest: '最佳調配結果 (10ml 單位):',
+                resultHot: '熱水 ({temp}℃) 需要：',
+                resultCold: '冷水 ({temp}℃) 需要：',
+                resultActualTemp: '混合後實際溫度約：',
+                resultRangeNote: '(落在目標範圍 {min}~{max}℃ 內)',
+                errorCannotMixTitle: '❌ 錯誤',
+                errorCannotMixMsg: '您的熱水 ({Th}℃) 或冷水 ({Tc}℃) 無法調配出 {min}~{max}℃ 的水。',
+                errorNo10xTitle: '⚠️ 注意',
+                errorNo10xMsg: '在 10ml 倍數的限制下，找不到能準確落在 {min}~{max}℃ 範圍內的組合。',
+                errorNo10xHint: '請嘗試更改熱水或冷水的溫度設定。'
+            },
+            'en': {
+                appTitle: '🍼 Formula Water Calculator (10x Multiples)',
+                mainTitle: '👶 Formula Water Calculation (10ml Units)',
+                labelMilkAmount: 'Total Volume (ml):',
+                labelHotWater: 'Hot Water Temp. (℃):',
+                labelColdWater: 'Cold Water Temp. (℃):',
+                calculateButton: 'Calculate Optimal 10ml Ratio',
+                initialPrompt: 'Please select parameters and click "Calculate"',
+                resultBest: 'Optimal Mixing Ratio (10ml units):',
+                resultHot: 'Hot Water ({temp}℃) required:',
+                resultCold: 'Cold Water ({temp}℃) required:',
+                resultActualTemp: 'Actual Mixed Temp. approx.:',
+                resultRangeNote: '(Within target range {min}~{max}℃)',
+                errorCannotMixTitle: '❌ Error',
+                errorCannotMixMsg: 'Your hot water ({Th}℃) or cold water ({Tc}℃) cannot mix water between {min}~{max}℃.',
+                errorNo10xTitle: '⚠️ Warning',
+                errorNo10xMsg: 'No 10ml multiple combination found to be accurately within the {min}~{max}℃ range.',
+                errorNo10xHint: 'Please try changing the hot or cold water temperature settings.'
+            }
+        };
+
+        let currentLang = 'zh'; // 預設語言
+
+        // --- 語言切換函數 ---
+        function switchLanguage() {
+            currentLang = (currentLang === 'zh') ? 'en' : 'zh';
+            const lang = languageData[currentLang];
+            
+            // 更新 HTML 文本
+            document.getElementById('appTitle').textContent = lang.appTitle;
+            document.getElementById('mainTitle').textContent = lang.mainTitle;
+            document.getElementById('labelMilkAmount').textContent = lang.labelMilkAmount;
+            document.getElementById('labelHotWater').textContent = lang.labelHotWater;
+            document.getElementById('labelColdWater').textContent = lang.labelColdWater;
+            document.getElementById('calculateButton').textContent = lang.calculateButton;
+            
+            // 更新切換按鈕文本
+            document.getElementById('language-toggle').textContent = (currentLang === 'zh') ? 'English' : '中文';
+            
+            // 重新執行計算，以更新結果區塊的語言
+            calculateWaterAmount(true); 
+        }
+
+        // --- 原始計算函數 (略微調整以支援多語言) ---
+        function calculateWaterAmount(isLanguageSwitch = false) {
+            const totalVolume = parseInt(document.getElementById('milk_amount').value);
+            const Th = parseInt(document.getElementById('hot_water_temp').value);
+            const Tc = parseInt(document.getElementById('cold_water_temp').value);
+            const T_min = 42;
+            const T_max = 48;
+            const T_ideal = 45;
+            const resultArea = document.getElementById('result_area');
+            const lang = languageData[currentLang];
+
+            // 如果只是語言切換，但沒有參數變化，且結果區是初始提示，則只更新提示
+            if (isLanguageSwitch && resultArea.innerHTML.includes('initialPrompt')) {
+                resultArea.innerHTML = `<p id="initialPrompt">${lang.initialPrompt}</p>`;
+                return;
+            }
+
+            let bestVh = 0;
+            let bestVc = 0;
+            let closestTemp = 0;
+            let minTempDiff = Infinity; 
+
+            // 檢查基本條件 (使用語言字典的錯誤訊息)
+            if (T_min < Tc || T_max > Th) {
+                let errorMsg = lang.errorCannotMixMsg.replace('{Th}', Th).replace('{Tc}', Tc).replace('{min}', T_min).replace('{max}', T_max);
+                resultArea.innerHTML = `<p style="color:#d32f2f;">${lang.errorCannotMixTitle}</p>
+                                        <p>${errorMsg}</p>`;
+                return;
+            }
+
+            // 遍歷所有 10 的倍數組合
+            for (let Vh_try = 10; Vh_try < totalVolume; Vh_try += 10) {
+                const Vc_try = totalVolume - Vh_try;
+                if (Vc_try % 10 !== 0) continue; 
+                
+                const Tm_actual = (Vh_try * Th + Vc_try * Tc) / totalVolume;
+
+                if (Tm_actual >= T_min && Tm_actual <= T_max) {
+                    const tempDiff = Math.abs(Tm_actual - T_ideal);
+                    
+                    if (tempDiff < minTempDiff) {
+                        minTempDiff = tempDiff;
+                        bestVh = Vh_try;
+                        bestVc = Vc_try;
+                        closestTemp = Tm_actual;
+                    }
+                }
+            }
+
+            // 輸出結果 (使用語言字典的結果訊息)
+            if (bestVh > 0) {
+                let note = lang.resultRangeNote.replace('{min}', T_min).replace('{max}', T_max);
+                let hotLabel = lang.resultHot.replace('{temp}', Th);
+                let coldLabel = lang.resultCold.replace('{temp}', Tc);
+
+                resultArea.innerHTML = `
+                    <p>${lang.resultBest}</p>
+                    <hr style="border-color: #ec407a;">
+                    <p>${hotLabel}<strong>${bestVh} ml</strong></p>
+                    <p>${coldLabel}<strong>${bestVc} ml</strong></p>
+                    <p style="font-size:1em; color:#d32f2f;">
+                        ${lang.resultActualTemp}<strong>${closestTemp.toFixed(1)} ℃</strong>
+                    </p>
+                    <p style="font-size:0.9em; color:#757575;">${note}</p>
+                `;
+            } else {
+                 // 找不到符合 42~48℃ 的 10 倍數組合
+                 let errorMsg = lang.errorNo10xMsg.replace('{min}', T_min).replace('{max}', T_max);
+                resultArea.innerHTML = `<p style="color:#d32f2f;">${lang.errorNo10xTitle}</p>
+                                        <p>${errorMsg}</p>
+                                        <p style="font-size:0.9em;">${lang.errorNo10xHint}</p>`;
+            }
+        }
+
+        // 首次載入時：設定初始語言並執行一次計算
+        document.addEventListener('DOMContentLoaded', () => {
+            // 首次載入時先設定好所有中文文本
+            switchLanguage(); // 執行一次 switchLanguage 會從預設的 'zh' 切換到 'en'
+            switchLanguage(); // 再執行一次 switchLanguage 會從 'en' 切換回 'zh' (這是為了執行內部更新邏輯)
+
+            // 如果您希望預設是英文，則只需執行一次 switchLanguage() 即可。
+        });
+    </script>
+
+</body>
+</html>
