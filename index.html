@@ -5,41 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="appTitle">🍼 奶粉沖泡計算機 (10倍數)</title>
     <style>
-        /* 樣式與前一版保持一致 */
+        /* 基礎樣式與手機優化 */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #fce4ec; /* 柔和粉色背景 */
+            background-color: #fce4ec; 
             color: #ad1457;
         }
 
         .calculator-container {
             background-color: #ffffff;
             padding: 25px;
+            padding-top: 60px; /* **新增：為右上角的按鈕預留空間** */
             border-radius: 12px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-            position: relative; /* 用於定位語言切換按鈕 */
+            position: relative; 
         }
 
-        h1 {
-            color: #880e4f;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 1.8em;
-        }
-
-        /* 語言切換按鈕樣式 */
+        /* **** 語言切換按鈕樣式修正 **** */
         #language-toggle {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            padding: 8px 12px;
+            top: 15px; /* 距離頂部 15px */
+            right: 15px; /* 距離右邊 15px */
+            z-index: 10; /* 確保它在最上層 */
+            
+            /* 尺寸優化 */
+            padding: 5px 10px; 
+            font-size: 0.8em; /* 字體縮小 */
+            
             background-color: #d81b60;
             color: white;
             border: none;
             border-radius: 6px;
-            font-size: 0.9em;
             cursor: pointer;
             transition: background-color 0.3s;
         }
@@ -47,6 +45,17 @@
             background-color: #880e4f;
         }
 
+        /* 標題樣式 */
+        h1 {
+            color: #880e4f;
+            text-align: center;
+            /* 由於上方已經用 padding-top 騰出空間，這裡的 margin 可以減少 */
+            margin-top: 0; 
+            margin-bottom: 30px; 
+            font-size: 1.8em;
+        }
+
+        /* 其他表單元素的樣式... */
         .form-group {
             margin-bottom: 20px;
         }
@@ -59,7 +68,6 @@
             color: #c2185b;
         }
 
-        /* 下拉式選單樣式 */
         select {
             width: 100%;
             padding: 12px 10px;
@@ -89,7 +97,7 @@
         }
 
         /* 按鈕樣式 */
-        button {
+        button:not(#language-toggle) { /* 排除語言切換按鈕 */
             width: 100%;
             padding: 15px;
             background-color: #ec407a;
@@ -102,7 +110,7 @@
             transition: background-color 0.3s;
             margin-top: 10px;
         }
-        button:hover {
+        button:not(#language-toggle):hover {
             background-color: #d81b60;
         }
 
@@ -186,7 +194,7 @@
     </div>
 
     <script>
-        // --- 語言字典 ---
+        // --- JavaScript 保持不變 ---
         const languageData = {
             'zh': {
                 appTitle: '🍼 奶粉沖泡計算機 (10倍數)',
@@ -228,14 +236,12 @@
             }
         };
 
-        let currentLang = 'zh'; // 預設語言
+        let currentLang = 'zh'; 
 
-        // --- 語言切換函數 ---
         function switchLanguage() {
             currentLang = (currentLang === 'zh') ? 'en' : 'zh';
             const lang = languageData[currentLang];
             
-            // 更新 HTML 文本
             document.getElementById('appTitle').textContent = lang.appTitle;
             document.getElementById('mainTitle').textContent = lang.mainTitle;
             document.getElementById('labelMilkAmount').textContent = lang.labelMilkAmount;
@@ -243,14 +249,11 @@
             document.getElementById('labelColdWater').textContent = lang.labelColdWater;
             document.getElementById('calculateButton').textContent = lang.calculateButton;
             
-            // 更新切換按鈕文本
             document.getElementById('language-toggle').textContent = (currentLang === 'zh') ? 'English' : '中文';
             
-            // 重新執行計算，以更新結果區塊的語言
             calculateWaterAmount(true); 
         }
 
-        // --- 原始計算函數 (略微調整以支援多語言) ---
         function calculateWaterAmount(isLanguageSwitch = false) {
             const totalVolume = parseInt(document.getElementById('milk_amount').value);
             const Th = parseInt(document.getElementById('hot_water_temp').value);
@@ -261,7 +264,6 @@
             const resultArea = document.getElementById('result_area');
             const lang = languageData[currentLang];
 
-            // 如果只是語言切換，但沒有參數變化，且結果區是初始提示，則只更新提示
             if (isLanguageSwitch && resultArea.innerHTML.includes('initialPrompt')) {
                 resultArea.innerHTML = `<p id="initialPrompt">${lang.initialPrompt}</p>`;
                 return;
@@ -272,7 +274,6 @@
             let closestTemp = 0;
             let minTempDiff = Infinity; 
 
-            // 檢查基本條件 (使用語言字典的錯誤訊息)
             if (T_min < Tc || T_max > Th) {
                 let errorMsg = lang.errorCannotMixMsg.replace('{Th}', Th).replace('{Tc}', Tc).replace('{min}', T_min).replace('{max}', T_max);
                 resultArea.innerHTML = `<p style="color:#d32f2f;">${lang.errorCannotMixTitle}</p>
@@ -280,7 +281,6 @@
                 return;
             }
 
-            // 遍歷所有 10 的倍數組合
             for (let Vh_try = 10; Vh_try < totalVolume; Vh_try += 10) {
                 const Vc_try = totalVolume - Vh_try;
                 if (Vc_try % 10 !== 0) continue; 
@@ -299,7 +299,6 @@
                 }
             }
 
-            // 輸出結果 (使用語言字典的結果訊息)
             if (bestVh > 0) {
                 let note = lang.resultRangeNote.replace('{min}', T_min).replace('{max}', T_max);
                 let hotLabel = lang.resultHot.replace('{temp}', Th);
@@ -316,7 +315,6 @@
                     <p style="font-size:0.9em; color:#757575;">${note}</p>
                 `;
             } else {
-                 // 找不到符合 42~48℃ 的 10 倍數組合
                  let errorMsg = lang.errorNo10xMsg.replace('{min}', T_min).replace('{max}', T_max);
                 resultArea.innerHTML = `<p style="color:#d32f2f;">${lang.errorNo10xTitle}</p>
                                         <p>${errorMsg}</p>
@@ -324,13 +322,9 @@
             }
         }
 
-        // 首次載入時：設定初始語言並執行一次計算
         document.addEventListener('DOMContentLoaded', () => {
-            // 首次載入時先設定好所有中文文本
-            switchLanguage(); // 執行一次 switchLanguage 會從預設的 'zh' 切換到 'en'
-            switchLanguage(); // 再執行一次 switchLanguage 會從 'en' 切換回 'zh' (這是為了執行內部更新邏輯)
-
-            // 如果您希望預設是英文，則只需執行一次 switchLanguage() 即可。
+            switchLanguage(); 
+            switchLanguage(); 
         });
     </script>
 
