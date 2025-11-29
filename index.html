@@ -5,36 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="appTitle">🍼 奶粉沖泡計算機 (10倍數)</title>
     <style>
-        /* 基礎樣式與手機優化 */
+        /* 基礎樣式與手機優化 - 暗色系調整 */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #fce4ec; 
-            color: #ad1457;
+            background-color: #212529; /* 深灰色背景 */
+            color: #f8f9fa; /* 淺白色文字 */
         }
 
         .calculator-container {
-            background-color: #ffffff;
+            background-color: #343a40; /* 較淺的深灰色容器 */
             padding: 25px;
-            padding-top: 60px; /* **新增：為右上角的按鈕預留空間** */
+            padding-top: 20px;
             border-radius: 12px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4); /* 更明顯的陰影 */
             position: relative; 
         }
 
-        /* **** 語言切換按鈕樣式修正 **** */
+        /* 語言切換按鈕樣式 */
         #language-toggle {
             position: absolute;
-            top: 15px; /* 距離頂部 15px */
-            right: 15px; /* 距離右邊 15px */
-            z-index: 10; /* 確保它在最上層 */
+            top: 20px;
+            right: 20px;
+            z-index: 10;
             
-            /* 尺寸優化 */
             padding: 5px 10px; 
-            font-size: 0.8em; /* 字體縮小 */
+            font-size: 0.8em; 
             
-            background-color: #d81b60;
+            background-color: #007bff; /* 沉穩藍色 */
             color: white;
             border: none;
             border-radius: 6px;
@@ -42,40 +41,44 @@
             transition: background-color 0.3s;
         }
         #language-toggle:hover {
-            background-color: #880e4f;
+            background-color: #0056b3;
         }
 
         /* 標題樣式 */
         h1 {
-            color: #880e4f;
+            color: #90ee90; /* 柔和的淺綠色標題 */
             text-align: center;
-            /* 由於上方已經用 padding-top 騰出空間，這裡的 margin 可以減少 */
-            margin-top: 0; 
+            margin-top: 20px; 
             margin-bottom: 30px; 
             font-size: 1.8em;
+            padding-right: 70px;
+            padding-left: 10px;
         }
 
-        /* 其他表單元素的樣式... */
+        /* 欄位群組 */
         .form-group {
             margin-bottom: 20px;
         }
 
+        /* 標籤樣式 */
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
             font-size: 1.1em;
-            color: #c2185b;
+            color: #adb5bd; /* 柔和的灰色標籤 */
         }
 
+        /* 下拉式選單樣式 */
         select {
             width: 100%;
             padding: 12px 10px;
-            border: 2px solid #f48fb1;
+            border: 1px solid #495057; /* 深色邊框 */
             border-radius: 8px;
             box-sizing: border-box;
             font-size: 1.1em;
-            background-color: #fce4ec;
+            background-color: #495057; /* 比容器稍深的背景 */
+            color: #f8f9fa; /* 淺色文字 */
             min-height: 48px; 
             -webkit-appearance: none;
             -moz-appearance: none;
@@ -93,14 +96,14 @@
             top: 50%;
             transform: translateY(-50%);
             pointer-events: none;
-            color: #c2185b;
+            color: #ced4da; /* 淺色箭頭 */
         }
 
-        /* 按鈕樣式 */
-        button:not(#language-toggle) { /* 排除語言切換按鈕 */
+        /* 計算按鈕樣式 */
+        button:not(#language-toggle) { 
             width: 100%;
             padding: 15px;
-            background-color: #ec407a;
+            background-color: #28a745; /* 沉穩的綠色按鈕 */
             color: white;
             border: none;
             border-radius: 8px;
@@ -111,17 +114,17 @@
             margin-top: 10px;
         }
         button:not(#language-toggle):hover {
-            background-color: #d81b60;
+            background-color: #1e7e34;
         }
 
         /* 結果顯示區 */
         #result_area {
             margin-top: 30px;
             padding: 15px;
-            border: 2px dashed #ec407a;
+            border: 2px dashed #007bff; /* 藍色虛線強調 */
             border-radius: 8px;
             text-align: center;
-            background-color: #fff8e1;
+            background-color: #495057; /* 與選單背景色一致 */
             min-height: 100px;
         }
 
@@ -129,11 +132,11 @@
             font-size: 1.1em;
             font-weight: bold;
             margin: 10px 0;
-            color: #880e4f;
+            color: #f8f9fa;
         }
         #result_area strong {
             font-size: 1.4em;
-            color: #d32f2f;
+            color: #ffc107; /* 黃色強調結果數值 */
         }
     </style>
 </head>
@@ -306,19 +309,19 @@
 
                 resultArea.innerHTML = `
                     <p>${lang.resultBest}</p>
-                    <hr style="border-color: #ec407a;">
+                    <hr style="border-color: #007bff;">
                     <p>${hotLabel}<strong>${bestVh} ml</strong></p>
                     <p>${coldLabel}<strong>${bestVc} ml</strong></p>
-                    <p style="font-size:1em; color:#d32f2f;">
+                    <p style="font-size:1em; color:#ffc107;">
                         ${lang.resultActualTemp}<strong>${closestTemp.toFixed(1)} ℃</strong>
                     </p>
-                    <p style="font-size:0.9em; color:#757575;">${note}</p>
+                    <p style="font-size:0.9em; color:#adb5bd;">${note}</p>
                 `;
             } else {
                  let errorMsg = lang.errorNo10xMsg.replace('{min}', T_min).replace('{max}', T_max);
                 resultArea.innerHTML = `<p style="color:#d32f2f;">${lang.errorNo10xTitle}</p>
                                         <p>${errorMsg}</p>
-                                        <p style="font-size:0.9em;">${lang.errorNo10xHint}</p>`;
+                                        <p style="font-size:0.9em; color:#adb5bd;">${lang.errorNo10xHint}</p>`;
             }
         }
 
