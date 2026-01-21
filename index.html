@@ -12,6 +12,7 @@
             padding: 20px;
             background-color: #212529; /* 深灰色背景 */
             color: #f8f9fa; /* 淺白色文字 */
+            min-height: 100vh;
         }
 
         .calculator-container {
@@ -20,7 +21,9 @@
             padding-top: 20px;
             border-radius: 12px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4); /* 更明顯的陰影 */
-            position: relative; 
+            position: relative;
+            max-width: 100%;
+            margin: 0 auto;
         }
 
         /* 語言切換按鈕樣式 */
@@ -139,25 +142,183 @@
             color: #ffc107; /* 黃色強調結果數值 */
         }
 
-        /* 冷水提示樣式 */
+        /* 冷水提示樣式 - 醒目設計 */
         .cold-water-warning {
             display: inline-block;
-            margin-left: 8px;
-            padding: 4px 8px;
-            background-color: #dc3545; /* 紅色背景 */
+            margin-left: 10px;
+            padding: 6px 12px;
+            background-color: #ff6b35; /* 醒目的橙紅色背景 */
             color: #ffffff;
-            font-size: 0.85em;
+            font-size: 0.9em;
             font-weight: bold;
-            border-radius: 4px;
+            border-radius: 6px;
+            border: 2px solid #ff4500; /* 深橙色邊框 */
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.5);
             animation: pulse 2s infinite;
+            white-space: nowrap;
+            letter-spacing: 0.5px;
         }
 
         @keyframes pulse {
             0%, 100% {
                 opacity: 1;
+                transform: scale(1);
             }
             50% {
-                opacity: 0.8;
+                opacity: 0.9;
+                transform: scale(1.02);
+            }
+        }
+
+        /* 響應式設計 - 電腦版 (平板和桌面) */
+        @media (min-width: 768px) {
+            body {
+                padding: 40px;
+            }
+
+            .calculator-container {
+                max-width: 600px;
+                padding: 35px;
+                padding-top: 30px;
+            }
+
+            h1 {
+                font-size: 2.2em;
+                margin-bottom: 40px;
+            }
+
+            label {
+                font-size: 1.2em;
+            }
+
+            select {
+                font-size: 1.15em;
+                padding: 14px 12px;
+            }
+
+            button:not(#language-toggle) {
+                font-size: 1.3em;
+                padding: 18px;
+            }
+
+            #result_area {
+                padding: 20px;
+                min-height: 120px;
+            }
+
+            #result_area p {
+                font-size: 1.2em;
+            }
+
+            #result_area strong {
+                font-size: 1.5em;
+            }
+
+            .cold-water-warning {
+                font-size: 1em;
+                padding: 8px 14px;
+                margin-left: 12px;
+            }
+        }
+
+        /* 響應式設計 - 手機版 */
+        @media (max-width: 767px) {
+            body {
+                padding: 15px;
+            }
+
+            .calculator-container {
+                padding: 20px;
+                padding-top: 60px; /* 為語言切換按鈕留出空間 */
+                border-radius: 10px;
+            }
+
+            /* 語言切換按鈕在手機上的調整 */
+            #language-toggle {
+                top: 15px;
+                right: 15px;
+                padding: 8px 12px;
+                font-size: 0.9em;
+            }
+
+            h1 {
+                font-size: 1.5em;
+                margin-top: 10px;
+                margin-bottom: 25px;
+                padding-right: 80px; /* 為語言按鈕留出空間 */
+                padding-left: 0;
+            }
+
+            .form-group {
+                margin-bottom: 18px;
+            }
+
+            label {
+                font-size: 1em;
+                margin-bottom: 6px;
+            }
+
+            select {
+                font-size: 1em;
+                padding: 14px 10px;
+                min-height: 48px; /* 確保觸控友善 */
+            }
+
+            button:not(#language-toggle) {
+                font-size: 1.1em;
+                padding: 16px;
+                margin-top: 15px;
+            }
+
+            #result_area {
+                margin-top: 25px;
+                padding: 15px;
+                min-height: 90px;
+            }
+
+            #result_area p {
+                font-size: 1em;
+                margin: 8px 0;
+            }
+
+            #result_area strong {
+                font-size: 1.3em;
+            }
+
+            .cold-water-warning {
+                font-size: 0.8em;
+                padding: 5px 10px;
+                margin-left: 8px;
+                border-width: 1.5px;
+            }
+        }
+
+        /* 超小螢幕手機 (小於 360px) */
+        @media (max-width: 359px) {
+            body {
+                padding: 10px;
+            }
+
+            .calculator-container {
+                padding: 15px;
+                padding-top: 55px;
+            }
+
+            h1 {
+                font-size: 1.3em;
+                padding-right: 70px;
+            }
+
+            label {
+                font-size: 0.95em;
+            }
+
+            select {
+                font-size: 0.95em;
+            }
+
+            button:not(#language-toggle) {
+                font-size: 1em;
             }
         }
     </style>
@@ -196,7 +357,7 @@
         </div>
 
         <div class="form-group">
-            <label id="labelColdWater" for="cold_water_temp">冷水溫度 (℃):<span id="coldWaterWarning" class="cold-water-warning"></span></label>
+            <label id="labelColdWater" for="cold_water_temp">冷水溫度 (℃):<span id="coldWaterWarning" class="cold-water-warning">⚠️ 必須使用符合衛生標準的水</span></label>
             <div class="select-wrapper">
                 <select id="cold_water_temp" name="cold_water_temp">
                     <option value="16">16 ℃</option>
@@ -228,7 +389,7 @@
                 labelMilkAmount: '總奶量 (ml):',
                 labelHotWater: '熱水溫度 (℃):',
                 labelColdWater: '冷水溫度 (℃):',
-                coldWaterWarning: '⚠️ 冷水必須是煮沸過的水',
+                coldWaterWarning: '⚠️ 必須使用符合衛生標準的水',
                 calculateButton: '計算最佳 10ml 倍數配比',
                 initialPrompt: '請選擇上方參數並點擊「計算」',
                 resultBest: '最佳調配結果 (10ml 單位):',
@@ -248,7 +409,7 @@
                 labelMilkAmount: 'Total Volume (ml):',
                 labelHotWater: 'Hot Water Temp. (℃):',
                 labelColdWater: 'Cold Water Temp. (℃):',
-                coldWaterWarning: '⚠️ Must be boiled water',
+                coldWaterWarning: '⚠️ Must use water that meets hygiene standards',
                 calculateButton: 'Calculate Optimal 10ml Ratio',
                 initialPrompt: 'Please select parameters and click "Calculate"',
                 resultBest: 'Optimal Mixing Ratio (10ml units):',
@@ -264,21 +425,53 @@
             }
         };
 
-        let currentLang = 'zh'; 
+        // 檢測使用者瀏覽器的預設語言
+        function detectUserLanguage() {
+            const browserLang = navigator.language || navigator.userLanguage;
+            // 檢查是否為中文（包括 zh、zh-TW、zh-CN、zh-HK 等）
+            if (browserLang.toLowerCase().startsWith('zh')) {
+                return 'zh';
+            }
+            return 'en';
+        }
+
+        let currentLang = detectUserLanguage(); 
 
         function switchLanguage() {
             currentLang = (currentLang === 'zh') ? 'en' : 'zh';
+            applyLanguage();
+        }
+
+        function applyLanguage() {
             const lang = languageData[currentLang];
             
-            document.getElementById('appTitle').textContent = lang.appTitle;
-            document.getElementById('mainTitle').textContent = lang.mainTitle;
-            document.getElementById('labelMilkAmount').textContent = lang.labelMilkAmount;
-            document.getElementById('labelHotWater').textContent = lang.labelHotWater;
-            document.getElementById('labelColdWater').textContent = lang.labelColdWater;
-            document.getElementById('coldWaterWarning').textContent = lang.coldWaterWarning;
-            document.getElementById('calculateButton').textContent = lang.calculateButton;
+            // 安全地更新所有元素，添加 null 檢查
+            const appTitleEl = document.getElementById('appTitle');
+            if (appTitleEl) appTitleEl.textContent = lang.appTitle;
             
-            document.getElementById('language-toggle').textContent = (currentLang === 'zh') ? 'English' : '中文';
+            const mainTitleEl = document.getElementById('mainTitle');
+            if (mainTitleEl) mainTitleEl.textContent = lang.mainTitle;
+            
+            const labelMilkAmountEl = document.getElementById('labelMilkAmount');
+            if (labelMilkAmountEl) labelMilkAmountEl.textContent = lang.labelMilkAmount;
+            
+            const labelHotWaterEl = document.getElementById('labelHotWater');
+            if (labelHotWaterEl) labelHotWaterEl.textContent = lang.labelHotWater;
+            
+            const labelColdWaterEl = document.getElementById('labelColdWater');
+            if (labelColdWaterEl) {
+                // 使用 innerHTML 同時設置 label 文字和提示，確保提示元素始終存在
+                labelColdWaterEl.innerHTML = lang.labelColdWater + '<span id="coldWaterWarning" class="cold-water-warning">' + lang.coldWaterWarning + '</span>';
+            }
+            
+            const calculateButtonEl = document.getElementById('calculateButton');
+            if (calculateButtonEl) calculateButtonEl.textContent = lang.calculateButton;
+            
+            // 更新語言切換按鈕文字：目前是中文時顯示"English"，目前是英文時顯示"中文"
+            const toggleButton = document.getElementById('language-toggle');
+            if (toggleButton) {
+                toggleButton.textContent = (currentLang === 'zh') ? 'English' : '中文';
+            }
             
             calculateWaterAmount(true); 
         }
@@ -352,8 +545,19 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            switchLanguage(); 
-            switchLanguage(); 
+            // 確保按鈕文字正確更新
+            applyLanguage();
+            // 再次確認按鈕文字（防止時序問題）
+            setTimeout(() => {
+                const toggleButton = document.getElementById('language-toggle');
+                if (toggleButton) {
+                    if (currentLang === 'zh') {
+                        toggleButton.textContent = 'English';
+                    } else {
+                        toggleButton.textContent = '中文';
+                    }
+                }
+            }, 100);
         });
     </script>
 
