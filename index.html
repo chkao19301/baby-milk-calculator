@@ -58,6 +58,79 @@
             padding-left: 10px;
         }
 
+        /* 說明區塊樣式 */
+        .info-section {
+            margin-bottom: 25px;
+            background-color: #495057;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #6c757d;
+        }
+
+        .info-toggle {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 15px;
+            font-size: 0.95em;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        .info-toggle:hover {
+            background-color: #0056b3;
+        }
+
+        .info-toggle::after {
+            content: '▼';
+            font-size: 0.8em;
+            transition: transform 0.3s;
+        }
+
+        .info-toggle.expanded::after {
+            transform: rotate(180deg);
+        }
+
+        .info-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            margin-top: 0;
+        }
+
+        .info-content.expanded {
+            max-height: 1000px;
+            margin-top: 15px;
+        }
+
+        .info-content p {
+            margin: 10px 0;
+            line-height: 1.6;
+            color: #e9ecef;
+            font-size: 0.95em;
+        }
+
+        .info-content strong {
+            color: #ffc107;
+        }
+
+        .info-content ul {
+            margin: 10px 0;
+            padding-left: 20px;
+            color: #e9ecef;
+        }
+
+        .info-content li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
         /* 欄位群組 */
         .form-group {
             margin-bottom: 20px;
@@ -142,31 +215,100 @@
             color: #ffc107; /* 黃色強調結果數值 */
         }
 
-        /* 冷水提示樣式 - 醒目設計 */
+        /* 冷水提示樣式 - 改為懸停顯示 */
         .cold-water-warning {
             display: inline-block;
-            margin-left: 10px;
-            padding: 6px 12px;
-            background-color: #ff6b35; /* 醒目的橙紅色背景 */
+            margin-left: 8px;
+            padding: 4px 8px;
+            background-color: #ff6b35;
             color: #ffffff;
-            font-size: 0.9em;
+            font-size: 0.85em;
             font-weight: bold;
-            border-radius: 6px;
-            border: 2px solid #ff4500; /* 深橙色邊框 */
-            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.5);
-            animation: pulse 2s infinite;
-            white-space: nowrap;
-            letter-spacing: 0.5px;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            cursor: help;
+            position: relative;
+            transition: transform 0.2s;
         }
 
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-                transform: scale(1);
+        .cold-water-warning:hover {
+            transform: scale(1.1);
+        }
+
+        .cold-water-warning::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 5px;
+            padding: 8px 12px;
+            background-color: #ff6b35;
+            color: #ffffff;
+            font-size: 0.9em;
+            border-radius: 6px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .cold-water-warning:hover::after {
+            opacity: 1;
+        }
+
+        /* 結果操作按鈕樣式 */
+        .result-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .result-action-btn {
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .result-action-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .result-action-btn:active {
+            transform: scale(0.98);
+        }
+
+        .copy-success-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
             }
-            50% {
-                opacity: 0.9;
-                transform: scale(1.02);
+            to {
+                transform: translateX(0);
+                opacity: 1;
             }
         }
 
@@ -331,6 +473,18 @@
 
         <h1 id="mainTitle">👶 奶粉沖泡水量計算 (10ml 單位)</h1>
 
+        <!-- 說明與引導區塊 -->
+        <div class="info-section">
+            <button class="info-toggle" id="infoToggle" onclick="toggleInfo()">
+                <span id="infoToggleText">📖 使用說明與常見問題</span>
+            </button>
+            <div class="info-content" id="infoContent">
+                <div id="infoContentText">
+                    <!-- 內容將由 JavaScript 動態填入 -->
+                </div>
+            </div>
+        </div>
+
         <div class="form-group">
             <label id="labelMilkAmount" for="milk_amount">總奶量 (ml):</label>
             <div class="select-wrapper">
@@ -357,7 +511,7 @@
         </div>
 
         <div class="form-group">
-            <label id="labelColdWater" for="cold_water_temp">冷水溫度 (℃):<span id="coldWaterWarning" class="cold-water-warning">⚠️ 必須使用符合衛生標準的水</span></label>
+            <label id="labelColdWater" for="cold_water_temp">冷水溫度 (℃):<span id="coldWaterWarning" class="cold-water-warning" data-tooltip="">⚠</span></label>
             <div class="select-wrapper">
                 <select id="cold_water_temp" name="cold_water_temp">
                     <option value="16">16 ℃</option>
@@ -369,10 +523,6 @@
                 </select>
             </div>
         </div>
-
-        <button id="calculateButton" onclick="calculateWaterAmount()">
-            計算最佳 10ml 倍數配比
-        </button>
         
         <div id="result_area">
             <p id="initialPrompt">請選擇上方參數並點擊「計算」</p>
@@ -384,44 +534,64 @@
         // --- JavaScript 保持不變 ---
         const languageData = {
             'zh': {
-                appTitle: '🍼 奶粉沖泡計算機 (10倍數)',
-                mainTitle: '👶 奶粉沖泡水量計算 (10ml 單位)',
-                labelMilkAmount: '總奶量 (ml):',
-                labelHotWater: '熱水溫度 (℃):',
-                labelColdWater: '冷水溫度 (℃):',
-                coldWaterWarning: '⚠️ 必須使用符合衛生標準的水',
-                calculateButton: '計算最佳 10ml 倍數配比',
-                initialPrompt: '請選擇上方參數並點擊「計算」',
-                resultBest: '最佳調配結果 (10ml 單位):',
-                resultHot: '熱水 ({temp}℃) 需要：',
-                resultCold: '冷水 ({temp}℃) 需要：',
-                resultActualTemp: '混合後實際溫度約：',
-                resultRangeNote: '(落在目標範圍 {min}~{max}℃ 內)',
-                errorCannotMixTitle: '❌ 錯誤',
-                errorCannotMixMsg: '您的熱水 ({Th}℃) 或冷水 ({Tc}℃) 無法調配出 {min}~{max}℃ 的水。',
-                errorNo10xTitle: '⚠️ 注意',
-                errorNo10xMsg: '在 10ml 倍數的限制下，找不到能準確落在 {min}~{max}℃ 範圍內的組合。',
-                errorNo10xHint: '請嘗試更改熱水或冷水的溫度設定。'
+                appTitle: '🍼 奶粉沖泡計算機',
+                mainTitle: '👶 奶粉沖泡水量計算',
+                labelMilkAmount: '總奶量：',
+                labelHotWater: '熱水溫度（℃）：',
+                labelColdWater: '冷水溫度（℃）：',
+                coldWaterWarning: '💡 提醒：請使用煮沸過後放涼的開水，或乾淨的飲用水',
+                initialPrompt: '請選擇參數，系統將自動計算',
+                resultBest: '推薦配比：',
+                resultHot: '熱水（{temp}℃）：',
+                resultCold: '冷水（{temp}℃）：',
+                resultActualTemp: '最終水溫：',
+                resultRangeNote: '✓ 符合 {min}~{max}℃ 理想範圍',
+                errorCannotMixTitle: '⚠️ 無法調配出合適溫度',
+                errorCannotMixMsg: '目前選擇的溫度組合無法達到 {min}~{max}℃ 的理想範圍。',
+                errorCannotMixSuggestion: '💡 建議：將熱水調整為 80℃ 或 90℃，或將冷水調整為 20℃ 以下。',
+                errorNo10xTitle: '⚠️ 無法找到合適配比',
+                errorNo10xMsg: '在 10ml 倍數的限制下，無法找到符合 {min}~{max}℃ 範圍的配比。',
+                errorNo10xHint: '💡 建議：試試將熱水調整為 80℃ 或 90℃，或將冷水調整為 18-20℃。',
+                infoToggleText: '📖 使用說明',
+                infoWhy10ml: '為什麼使用 10ml 倍數？',
+                infoWhy10mlContent: '採用 10ml 倍數，方便使用量杯或奶瓶刻度測量，確保沖泡準確。',
+                infoWhyTemp: '為什麼目標溫度是 42-48℃？',
+                infoWhyTempContent: '42-48℃ 的理想溫度能確保奶粉完全溶解、保留營養，且寶寶可直接飲用。',
+                infoHowToUse: '如何使用？',
+                infoHowToUseContent: '<ul><li>選擇總奶量（建議：180ml）</li><li>選擇熱水溫度（推薦：80-90℃）</li><li>選擇冷水溫度（推薦：20℃）</li><li>系統自動計算並顯示最佳配比</li><li>按結果操作：先倒熱水，再加冷水，最後加奶粉</li></ul>',
+                copyResult: '📋 複製',
+                copySuccess: '✅ 已複製',
+                shareResult: '🔗 分享結果'
             },
             'en': {
-                appTitle: '🍼 Formula Water Calculator (10x Multiples)',
-                mainTitle: '👶 Formula Water Calculation (10ml Units)',
-                labelMilkAmount: 'Total Volume (ml):',
+                appTitle: '🍼 Formula Water Calculator',
+                mainTitle: '👶 Formula Water Calculator',
+                labelMilkAmount: 'Total Volume:',
                 labelHotWater: 'Hot Water Temp. (℃):',
                 labelColdWater: 'Cold Water Temp. (℃):',
-                coldWaterWarning: '⚠️ Must use water that meets hygiene standards',
-                calculateButton: 'Calculate Optimal 10ml Ratio',
-                initialPrompt: 'Please select parameters and click "Calculate"',
-                resultBest: 'Optimal Mixing Ratio (10ml units):',
-                resultHot: 'Hot Water ({temp}℃) required:',
-                resultCold: 'Cold Water ({temp}℃) required:',
-                resultActualTemp: 'Actual Mixed Temp. approx.:',
-                resultRangeNote: '(Within target range {min}~{max}℃)',
-                errorCannotMixTitle: '❌ Error',
-                errorCannotMixMsg: 'Your hot water ({Th}℃) or cold water ({Tc}℃) cannot mix water between {min}~{max}℃.',
-                errorNo10xTitle: '⚠️ Warning',
-                errorNo10xMsg: 'No 10ml multiple combination found to be accurately within the {min}~{max}℃ range.',
-                errorNo10xHint: 'Please try changing the hot or cold water temperature settings.'
+                coldWaterWarning: '💡 Reminder: Please use boiled and cooled water, or clean drinking water',
+                initialPrompt: 'Select parameters to see optimal ratio',
+                resultBest: 'Optimal Ratio:',
+                resultHot: 'Hot Water ({temp}℃):',
+                resultCold: 'Cold Water ({temp}℃):',
+                resultActualTemp: 'Final Temperature:',
+                resultRangeNote: '✓ Within ideal range {min}~{max}℃',
+                errorCannotMixTitle: '⚠️ Cannot Create Suitable Temperature',
+                errorCannotMixMsg: 'The selected temperature combination cannot reach the ideal range of {min}~{max}℃.',
+                errorCannotMixSuggestion: '💡 Suggestion: Adjust hot water to 80℃ or 90℃, or adjust cold water to below 20℃.',
+                errorNo10xTitle: '⚠️ Cannot Find Suitable Ratio',
+                errorNo10xMsg: 'Under the 10ml multiple limitation, no combination can be found within the {min}~{max}℃ range.',
+                errorNo10xHint: '💡 Suggestion: Try adjusting hot water to 80℃ or 90℃, or adjust cold water to 18-20℃.',
+                infoToggleText: '📖 Usage Guide',
+                infoWhy10ml: 'Why use 10ml multiples?',
+                infoWhy10mlContent: 'Using 10ml multiples makes it easy to measure with cups or bottle scales, ensuring accurate preparation.',
+                infoWhyTemp: 'Why is the target temperature 42-48℃?',
+                infoWhyTempContent: 'The ideal 42-48℃ range ensures complete dissolution, preserves nutrients, and is ready for your baby to drink.',
+                infoHowToUse: 'How to use?',
+                infoHowToUseContent: '<ul><li>Select total volume (recommended: 180ml)</li><li>Select hot water temperature (recommended: 80-90℃)</li><li>Select cold water temperature (recommended: 20℃)</li><li>System automatically calculates and displays optimal ratio</li><li>Follow result: pour hot water first, then cold water, finally add formula powder</li></ul>',
+                copyResult: '📋 Copy',
+                copySuccess: '✅ Copied',
+                shareResult: '🔗 Share Result'
             }
         };
 
@@ -440,6 +610,31 @@
         function switchLanguage() {
             currentLang = (currentLang === 'zh') ? 'en' : 'zh';
             applyLanguage();
+        }
+
+        function toggleInfo() {
+            const infoContent = document.getElementById('infoContent');
+            const infoToggle = document.getElementById('infoToggle');
+            if (infoContent && infoToggle) {
+                infoContent.classList.toggle('expanded');
+                infoToggle.classList.toggle('expanded');
+            }
+        }
+
+        function updateInfoContent() {
+            const lang = languageData[currentLang];
+            const infoContentText = document.getElementById('infoContentText');
+            if (infoContentText) {
+                infoContentText.innerHTML = `
+                    <p><strong>${lang.infoWhy10ml}</strong><br>${lang.infoWhy10mlContent}</p>
+                    <p><strong>${lang.infoWhyTemp}</strong><br>${lang.infoWhyTempContent}</p>
+                    <p><strong>${lang.infoHowToUse}</strong><br>${lang.infoHowToUseContent}</p>
+                `;
+            }
+            const infoToggleText = document.getElementById('infoToggleText');
+            if (infoToggleText) {
+                infoToggleText.textContent = lang.infoToggleText;
+            }
         }
 
         function applyLanguage() {
@@ -461,11 +656,8 @@
             const labelColdWaterEl = document.getElementById('labelColdWater');
             if (labelColdWaterEl) {
                 // 使用 innerHTML 同時設置 label 文字和提示，確保提示元素始終存在
-                labelColdWaterEl.innerHTML = lang.labelColdWater + '<span id="coldWaterWarning" class="cold-water-warning">' + lang.coldWaterWarning + '</span>';
+                labelColdWaterEl.innerHTML = lang.labelColdWater + '<span id="coldWaterWarning" class="cold-water-warning" data-tooltip="' + lang.coldWaterWarning + '">⚠</span>';
             }
-            
-            const calculateButtonEl = document.getElementById('calculateButton');
-            if (calculateButtonEl) calculateButtonEl.textContent = lang.calculateButton;
             
             // 更新語言切換按鈕文字：目前是中文時顯示"English"，目前是英文時顯示"中文"
             const toggleButton = document.getElementById('language-toggle');
@@ -473,7 +665,88 @@
                 toggleButton.textContent = (currentLang === 'zh') ? 'English' : '中文';
             }
             
+            // 更新說明內容
+            updateInfoContent();
+            
             calculateWaterAmount(true); 
+        }
+
+        // 任務 4：保存和載入設定
+        function saveSettings() {
+            const settings = {
+                milkAmount: document.getElementById('milk_amount').value,
+                hotWaterTemp: document.getElementById('hot_water_temp').value,
+                coldWaterTemp: document.getElementById('cold_water_temp').value
+            };
+            try {
+                localStorage.setItem('milkCalculator_settings', JSON.stringify(settings));
+            } catch (e) {
+                console.warn('無法保存設定:', e);
+            }
+        }
+
+        function loadSettings() {
+            try {
+                const savedSettings = localStorage.getItem('milkCalculator_settings');
+                if (savedSettings) {
+                    const settings = JSON.parse(savedSettings);
+                    if (settings.milkAmount) document.getElementById('milk_amount').value = settings.milkAmount;
+                    if (settings.hotWaterTemp) document.getElementById('hot_water_temp').value = settings.hotWaterTemp;
+                    if (settings.coldWaterTemp) document.getElementById('cold_water_temp').value = settings.coldWaterTemp;
+                    return true;
+                }
+            } catch (e) {
+                console.warn('無法載入設定:', e);
+            }
+            return false;
+        }
+
+        // 任務 5：複製結果功能
+        function copyResult() {
+            const resultArea = document.getElementById('result_area');
+            if (!resultArea) return;
+            
+            const resultText = resultArea.innerText || resultArea.textContent;
+            if (!resultText || resultText.includes('initialPrompt')) return;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(resultText).then(() => {
+                    showCopySuccess();
+                }).catch(err => {
+                    console.warn('複製失敗:', err);
+                    fallbackCopy(resultText);
+                });
+            } else {
+                fallbackCopy(resultText);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showCopySuccess();
+            } catch (err) {
+                console.warn('複製失敗:', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function showCopySuccess() {
+            const lang = languageData[currentLang];
+            const toast = document.createElement('div');
+            toast.className = 'copy-success-toast';
+            toast.textContent = lang.copySuccess;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 2000);
         }
 
         function calculateWaterAmount(isLanguageSwitch = false) {
@@ -485,6 +758,9 @@
             const T_ideal = 45;
             const resultArea = document.getElementById('result_area');
             const lang = languageData[currentLang];
+
+            // 保存設定
+            saveSettings();
 
             if (isLanguageSwitch && resultArea.innerHTML.includes('initialPrompt')) {
                 resultArea.innerHTML = `<p id="initialPrompt">${lang.initialPrompt}</p>`;
@@ -498,8 +774,10 @@
 
             if (T_min < Tc || T_max > Th) {
                 let errorMsg = lang.errorCannotMixMsg.replace('{Th}', Th).replace('{Tc}', Tc).replace('{min}', T_min).replace('{max}', T_max);
-                resultArea.innerHTML = `<p style="color:#d32f2f;">${lang.errorCannotMixTitle}</p>
-                                        <p>${errorMsg}</p>`;
+                let suggestion = lang.errorCannotMixSuggestion || '';
+                resultArea.innerHTML = `<p style="color:#d32f2f; font-weight: bold;">${lang.errorCannotMixTitle}</p>
+                                        <p style="margin: 10px 0;">${errorMsg}</p>
+                                        <p style="font-size:0.9em; color:#ffc107; margin-top: 10px;">${suggestion}</p>`;
                 return;
             }
 
@@ -535,16 +813,22 @@
                         ${lang.resultActualTemp}<strong>${closestTemp.toFixed(1)} ℃</strong>
                     </p>
                     <p style="font-size:0.9em; color:#adb5bd;">${note}</p>
+                    <div class="result-actions">
+                        <button class="result-action-btn" onclick="copyResult()">${lang.copyResult}</button>
+                    </div>
                 `;
             } else {
                  let errorMsg = lang.errorNo10xMsg.replace('{min}', T_min).replace('{max}', T_max);
-                resultArea.innerHTML = `<p style="color:#d32f2f;">${lang.errorNo10xTitle}</p>
-                                        <p>${errorMsg}</p>
-                                        <p style="font-size:0.9em; color:#adb5bd;">${lang.errorNo10xHint}</p>`;
+                resultArea.innerHTML = `<p style="color:#d32f2f; font-weight: bold;">${lang.errorNo10xTitle}</p>
+                                        <p style="margin: 10px 0;">${errorMsg}</p>
+                                        <p style="font-size:0.9em; color:#ffc107; margin-top: 10px;">${lang.errorNo10xHint}</p>`;
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // 任務 4：載入保存的設定
+            const settingsLoaded = loadSettings();
+            
             // 確保按鈕文字正確更新
             applyLanguage();
             // 再次確認按鈕文字（防止時序問題）
@@ -558,6 +842,35 @@
                     }
                 }
             }, 100);
+            
+            // 任務 1：實現即時計算功能 - 為所有 select 元素添加 change 事件監聽器
+            const milkAmountSelect = document.getElementById('milk_amount');
+            const hotWaterTempSelect = document.getElementById('hot_water_temp');
+            const coldWaterTempSelect = document.getElementById('cold_water_temp');
+            
+            milkAmountSelect.addEventListener('change', calculateWaterAmount);
+            hotWaterTempSelect.addEventListener('change', calculateWaterAmount);
+            coldWaterTempSelect.addEventListener('change', calculateWaterAmount);
+            
+            // 任務 7：鍵盤快捷鍵支援 - 為 select 元素添加 Enter 鍵監聽
+            [milkAmountSelect, hotWaterTempSelect, coldWaterTempSelect].forEach(select => {
+                select.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        calculateWaterAmount();
+                        // 保持焦點在當前 select 上
+                        select.focus();
+                    }
+                });
+            });
+            
+            // 初始化說明內容
+            updateInfoContent();
+            
+            // 如果載入了設定，觸發一次計算
+            if (settingsLoaded) {
+                setTimeout(() => calculateWaterAmount(), 100);
+            }
         });
     </script>
 
