@@ -5,74 +5,111 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="appTitle">🍼 奶粉沖泡計算機 (10倍數)</title>
     <style>
-        /* 基礎樣式與手機優化 - 暗色系調整 */
+        /* 基礎樣式與手機優化 - 親子向粉藍漸變背景 */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #212529; /* 深灰色背景 */
-            color: #f8f9fa; /* 淺白色文字 */
+            background: linear-gradient(135deg, #E8F4F8 0%, #F5E6F3 50%, #FFF0F5 100%);
+            background-attachment: fixed;
+            color: #2C3E50; /* 深灰色文字確保可讀性 */
             min-height: 100vh;
+            position: relative;
+        }
+
+        /* 添加裝飾性雲朵背景（可選） */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
         }
 
         .calculator-container {
-            background-color: #343a40; /* 較淺的深灰色容器 */
+            background: rgba(255, 255, 255, 0.25); /* 半透明白色毛玻璃背景 */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             padding: 25px;
             padding-top: 20px;
-            border-radius: 12px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4); /* 更明顯的陰影 */
+            border-radius: 24px; /* 增加圓角 */
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 
+                        0 2px 8px rgba(0, 0, 0, 0.05),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5); /* 柔和陰影 + 內光 */
+            border: 1px solid rgba(255, 255, 255, 0.3); /* 半透明邊框 */
             position: relative;
             max-width: 100%;
             margin: 0 auto;
+            z-index: 1;
         }
 
-        /* 語言切換按鈕樣式 */
+        /* 語言切換按鈕樣式 - 毛玻璃效果 */
         #language-toggle {
             position: absolute;
             top: 20px;
             right: 20px;
             z-index: 10;
             
-            padding: 5px 10px; 
-            font-size: 0.8em; 
+            padding: 8px 15px; 
+            font-size: 0.85em; 
             
-            background-color: #007bff; /* 沉穩藍色 */
-            color: white;
-            border: none;
-            border-radius: 6px;
+            background: rgba(255, 184, 77, 0.3); /* 溫暖橙色半透明 */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #2C3E50;
+            border: 1px solid rgba(255, 184, 77, 0.5);
+            border-radius: 12px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            font-weight: 600;
         }
         #language-toggle:hover {
-            background-color: #0056b3;
+            background: rgba(255, 184, 77, 0.5);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 184, 77, 0.3);
         }
 
-        /* 標題樣式 */
+        /* 標題樣式 - 漸變文字效果 */
         h1 {
-            color: #90ee90; /* 柔和的淺綠色標題 */
+            background: linear-gradient(135deg, #FF9EC7 0%, #FFB84D 50%, #FF9EC7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             text-align: center;
             margin-top: 20px; 
             margin-bottom: 30px; 
             font-size: 1.8em;
             padding-right: 70px;
             padding-left: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
-        /* 說明區塊樣式 */
+        /* 說明區塊樣式 - 毛玻璃效果 */
         .info-section {
             margin-bottom: 25px;
-            background-color: #495057;
-            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 16px;
             padding: 15px;
-            border: 1px solid #6c757d;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
         }
 
         .info-toggle {
-            background-color: #007bff;
-            color: white;
+            background: linear-gradient(135deg, #FF9EC7 0%, #FFB84D 100%);
+            color: #2C3E50;
             border: none;
-            border-radius: 6px;
-            padding: 8px 15px;
+            border-radius: 12px;
+            padding: 10px 18px;
             font-size: 0.95em;
             cursor: pointer;
             width: 100%;
@@ -80,11 +117,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(255, 158, 199, 0.3);
         }
 
         .info-toggle:hover {
-            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 158, 199, 0.4);
         }
 
         .info-toggle::after {
@@ -112,18 +152,19 @@
         .info-content p {
             margin: 10px 0;
             line-height: 1.6;
-            color: #e9ecef;
+            color: #2C3E50;
             font-size: 0.95em;
         }
 
         .info-content strong {
-            color: #ffc107;
+            color: #FF9EC7;
+            font-weight: 700;
         }
 
         .info-content ul {
             margin: 10px 0;
             padding-left: 20px;
-            color: #e9ecef;
+            color: #2C3E50;
         }
 
         .info-content li {
@@ -136,29 +177,41 @@
             margin-bottom: 20px;
         }
 
-        /* 標籤樣式 */
+        /* 標籤樣式 - 溫暖色調 */
         label {
             display: block;
             margin-bottom: 8px;
-            font-weight: bold;
+            font-weight: 600;
             font-size: 1.1em;
-            color: #adb5bd; /* 柔和的灰色標籤 */
+            color: #2C3E50;
         }
 
-        /* 下拉式選單樣式 */
+        /* 下拉式選單樣式 - 毛玻璃效果 */
         select {
             width: 100%;
             padding: 12px 10px;
-            border: 1px solid #495057; /* 深色邊框 */
-            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
             box-sizing: border-box;
             font-size: 1.1em;
-            background-color: #495057; /* 比容器稍深的背景 */
-            color: #f8f9fa; /* 淺色文字 */
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #2C3E50;
             min-height: 48px; 
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: rgba(255, 158, 199, 0.6);
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 12px rgba(255, 158, 199, 0.2);
+            transform: translateY(-1px);
         }
         
         .select-wrapper {
@@ -172,70 +225,119 @@
             top: 50%;
             transform: translateY(-50%);
             pointer-events: none;
-            color: #ced4da; /* 淺色箭頭 */
+            color: #FF9EC7; /* 粉色箭頭 */
+            font-weight: bold;
         }
 
-        /* 計算按鈕樣式 */
-        button:not(#language-toggle) { 
+        /* 計算按鈕樣式 - 漸變背景 + 毛玻璃效果 */
+        button:not(#language-toggle):not(.info-toggle):not(.result-action-btn) { 
             width: 100%;
             padding: 15px;
-            background-color: #28a745; /* 沉穩的綠色按鈕 */
-            color: white;
+            background: linear-gradient(135deg, #FF9EC7 0%, #FFB84D 100%);
+            color: #2C3E50;
             border: none;
-            border-radius: 8px;
+            border-radius: 16px;
             font-size: 1.2em;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
             margin-top: 10px;
-        }
-        button:not(#language-toggle):hover {
-            background-color: #1e7e34;
+            box-shadow: 0 4px 16px rgba(255, 158, 199, 0.3);
+            position: relative;
+            overflow: hidden;
         }
 
-        /* 結果顯示區 */
+        button:not(#language-toggle):not(.info-toggle):not(.result-action-btn)::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        button:not(#language-toggle):not(.info-toggle):not(.result-action-btn):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 158, 199, 0.4);
+        }
+
+        button:not(#language-toggle):not(.info-toggle):not(.result-action-btn):hover::before {
+            left: 100%;
+        }
+
+        button:not(#language-toggle):not(.info-toggle):not(.result-action-btn):active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(255, 158, 199, 0.3);
+        }
+
+        /* 結果顯示區 - 毛玻璃卡片設計 */
         #result_area {
             margin-top: 30px;
-            padding: 15px;
-            border: 2px dashed #007bff; /* 藍色虛線強調 */
-            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
             text-align: center;
-            background-color: #495057; /* 與選單背景色一致 */
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             min-height: 100px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         #result_area p {
             font-size: 1.1em;
-            font-weight: bold;
+            font-weight: 600;
             margin: 10px 0;
-            color: #f8f9fa;
+            color: #2C3E50;
         }
         #result_area strong {
-            font-size: 1.4em;
-            color: #ffc107; /* 黃色強調結果數值 */
+            font-size: 1.5em;
+            color: #E91E63; /* 更深的粉紅色，提高對比度 */
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(233, 30, 99, 0.2);
+            letter-spacing: 0.5px;
         }
 
         /* 冷水提示樣式 - 改為懸停顯示 */
         .cold-water-warning {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             margin-left: 8px;
-            padding: 4px 8px;
-            background-color: #ff6b35;
-            color: #ffffff;
-            font-size: 0.85em;
-            font-weight: bold;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            text-align: center;
-            line-height: 20px;
+            padding: 4px 10px;
+            background: rgba(255, 184, 77, 0.15);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #FFB84D;
+            font-size: 0.9em;
+            font-weight: 600;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 184, 77, 0.3);
             cursor: help;
             position: relative;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(255, 184, 77, 0.15);
+            line-height: 1.2;
         }
 
         .cold-water-warning:hover {
-            transform: scale(1.1);
+            background: rgba(255, 184, 77, 0.25);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 184, 77, 0.25);
         }
 
         .cold-water-warning::after {
@@ -244,17 +346,21 @@
             bottom: 100%;
             left: 50%;
             transform: translateX(-50%);
-            margin-bottom: 5px;
-            padding: 8px 12px;
-            background-color: #ff6b35;
-            color: #ffffff;
+            margin-bottom: 8px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #2C3E50;
             font-size: 0.9em;
-            border-radius: 6px;
+            border-radius: 12px;
             white-space: nowrap;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s;
+            transition: all 0.3s ease;
             z-index: 1000;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 184, 77, 0.3);
         }
 
         .cold-water-warning:hover::after {
@@ -270,35 +376,45 @@
         }
 
         .result-action-btn {
-            padding: 8px 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
+            padding: 10px 18px;
+            background: rgba(255, 184, 77, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #2C3E50;
+            border: 1px solid rgba(255, 184, 77, 0.5);
+            border-radius: 12px;
             font-size: 0.9em;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(255, 184, 77, 0.2);
         }
 
         .result-action-btn:hover {
-            background-color: #0056b3;
+            background: rgba(255, 184, 77, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 184, 77, 0.3);
         }
 
         .result-action-btn:active {
-            transform: scale(0.98);
+            transform: translateY(0);
         }
 
         .copy-success-toast {
             position: fixed;
             top: 20px;
             right: 20px;
-            background-color: #28a745;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            color: #2C3E50;
+            padding: 14px 24px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
             z-index: 10000;
             animation: slideIn 0.3s ease-out;
+            border: 1px solid rgba(255, 158, 199, 0.3);
+            font-weight: 600;
         }
 
         @keyframes slideIn {
@@ -322,6 +438,7 @@
                 max-width: 600px;
                 padding: 35px;
                 padding-top: 30px;
+                border-radius: 28px;
             }
 
             h1 {
@@ -353,13 +470,13 @@
             }
 
             #result_area strong {
-                font-size: 1.5em;
+                font-size: 1.7em;
             }
 
             .cold-water-warning {
-                font-size: 1em;
-                padding: 8px 14px;
-                margin-left: 12px;
+                font-size: 0.95em;
+                padding: 5px 12px;
+                margin-left: 10px;
             }
         }
 
@@ -424,14 +541,13 @@
             }
 
             #result_area strong {
-                font-size: 1.3em;
+                font-size: 1.4em;
             }
 
             .cold-water-warning {
-                font-size: 0.8em;
-                padding: 5px 10px;
-                margin-left: 8px;
-                border-width: 1.5px;
+                font-size: 0.85em;
+                padding: 4px 10px;
+                margin-left: 6px;
             }
         }
 
@@ -511,7 +627,7 @@
         </div>
 
         <div class="form-group">
-            <label id="labelColdWater" for="cold_water_temp">冷水溫度 (℃):<span id="coldWaterWarning" class="cold-water-warning" data-tooltip="">⚠</span></label>
+            <label id="labelColdWater" for="cold_water_temp">冷水溫度 (℃):<span id="coldWaterWarning" class="cold-water-warning" data-tooltip="">💡</span></label>
             <div class="select-wrapper">
                 <select id="cold_water_temp" name="cold_water_temp">
                     <option value="16">16 ℃</option>
@@ -656,7 +772,7 @@
             const labelColdWaterEl = document.getElementById('labelColdWater');
             if (labelColdWaterEl) {
                 // 使用 innerHTML 同時設置 label 文字和提示，確保提示元素始終存在
-                labelColdWaterEl.innerHTML = lang.labelColdWater + '<span id="coldWaterWarning" class="cold-water-warning" data-tooltip="' + lang.coldWaterWarning + '">⚠</span>';
+                labelColdWaterEl.innerHTML = lang.labelColdWater + '<span id="coldWaterWarning" class="cold-water-warning" data-tooltip="' + lang.coldWaterWarning + '">💡</span>';
             }
             
             // 更新語言切換按鈕文字：目前是中文時顯示"English"，目前是英文時顯示"中文"
@@ -775,9 +891,9 @@
             if (T_min < Tc || T_max > Th) {
                 let errorMsg = lang.errorCannotMixMsg.replace('{Th}', Th).replace('{Tc}', Tc).replace('{min}', T_min).replace('{max}', T_max);
                 let suggestion = lang.errorCannotMixSuggestion || '';
-                resultArea.innerHTML = `<p style="color:#d32f2f; font-weight: bold;">${lang.errorCannotMixTitle}</p>
-                                        <p style="margin: 10px 0;">${errorMsg}</p>
-                                        <p style="font-size:0.9em; color:#ffc107; margin-top: 10px;">${suggestion}</p>`;
+                resultArea.innerHTML = `<p style="color:#FF6B6B; font-weight: bold; font-size: 1.1em;">${lang.errorCannotMixTitle}</p>
+                                        <p style="margin: 12px 0; color: #2C3E50;">${errorMsg}</p>
+                                        <p style="font-size:0.95em; color:#FFB84D; margin-top: 12px; font-weight: 600;">${suggestion}</p>`;
                 return;
             }
 
@@ -805,23 +921,23 @@
                 let coldLabel = lang.resultCold.replace('{temp}', Tc);
 
                 resultArea.innerHTML = `
-                    <p>${lang.resultBest}</p>
-                    <hr style="border-color: #007bff;">
-                    <p>${hotLabel}<strong>${bestVh} ml</strong></p>
-                    <p>${coldLabel}<strong>${bestVc} ml</strong></p>
-                    <p style="font-size:1em; color:#ffc107;">
-                        ${lang.resultActualTemp}<strong>${closestTemp.toFixed(1)} ℃</strong>
+                    <p style="font-size: 1.2em; margin-bottom: 15px; font-weight: 700; color: #2C3E50;">${lang.resultBest}</p>
+                    <hr style="border: none; border-top: 2px solid rgba(255, 158, 199, 0.3); margin: 15px 0;">
+                    <p style="font-size: 1.15em; margin: 14px 0; color: #2C3E50; font-weight: 600;">${hotLabel}<strong style="color: #E91E63; font-size: 1.6em; font-weight: 800; text-shadow: 0 2px 4px rgba(233, 30, 99, 0.25); letter-spacing: 0.5px; margin-left: 8px;">${bestVh} ml</strong></p>
+                    <p style="font-size: 1.15em; margin: 14px 0; color: #2C3E50; font-weight: 600;">${coldLabel}<strong style="color: #E91E63; font-size: 1.6em; font-weight: 800; text-shadow: 0 2px 4px rgba(233, 30, 99, 0.25); letter-spacing: 0.5px; margin-left: 8px;">${bestVc} ml</strong></p>
+                    <p style="font-size:1.15em; color:#FF6B35; margin-top: 18px; font-weight: 700;">
+                        ${lang.resultActualTemp}<strong style="color: #E91E63; font-size: 1.7em; font-weight: 800; text-shadow: 0 2px 4px rgba(233, 30, 99, 0.25); letter-spacing: 0.5px; margin-left: 8px;">${closestTemp.toFixed(1)} ℃</strong>
                     </p>
-                    <p style="font-size:0.9em; color:#adb5bd;">${note}</p>
+                    <p style="font-size:0.95em; color:#2C3E50; margin-top: 12px; opacity: 0.85; font-weight: 500;">${note}</p>
                     <div class="result-actions">
                         <button class="result-action-btn" onclick="copyResult()">${lang.copyResult}</button>
                     </div>
                 `;
             } else {
                  let errorMsg = lang.errorNo10xMsg.replace('{min}', T_min).replace('{max}', T_max);
-                resultArea.innerHTML = `<p style="color:#d32f2f; font-weight: bold;">${lang.errorNo10xTitle}</p>
-                                        <p style="margin: 10px 0;">${errorMsg}</p>
-                                        <p style="font-size:0.9em; color:#ffc107; margin-top: 10px;">${lang.errorNo10xHint}</p>`;
+                resultArea.innerHTML = `<p style="color:#FF6B6B; font-weight: bold; font-size: 1.1em;">${lang.errorNo10xTitle}</p>
+                                        <p style="margin: 12px 0; color: #2C3E50;">${errorMsg}</p>
+                                        <p style="font-size:0.95em; color:#FFB84D; margin-top: 12px; font-weight: 600;">${lang.errorNo10xHint}</p>`;
             }
         }
 
