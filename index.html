@@ -138,6 +138,28 @@
             font-size: 1.4em;
             color: #ffc107; /* 黃色強調結果數值 */
         }
+
+        /* 冷水提示樣式 */
+        .cold-water-warning {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 4px 8px;
+            background-color: #dc3545; /* 紅色背景 */
+            color: #ffffff;
+            font-size: 0.85em;
+            font-weight: bold;
+            border-radius: 4px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
     </style>
 </head>
 <body>
@@ -156,6 +178,7 @@
                     <option value="150">150 ml</option>
                     <option value="180" selected>180 ml</option>
                     <option value="210">210 ml</option>
+                    <option value="240">240 ml</option>
                 </select>
             </div>
         </div>
@@ -173,7 +196,7 @@
         </div>
 
         <div class="form-group">
-            <label id="labelColdWater" for="cold_water_temp">冷水溫度 (℃):</label>
+            <label id="labelColdWater" for="cold_water_temp">冷水溫度 (℃):<span id="coldWaterWarning" class="cold-water-warning"></span></label>
             <div class="select-wrapper">
                 <select id="cold_water_temp" name="cold_water_temp">
                     <option value="16">16 ℃</option>
@@ -205,6 +228,7 @@
                 labelMilkAmount: '總奶量 (ml):',
                 labelHotWater: '熱水溫度 (℃):',
                 labelColdWater: '冷水溫度 (℃):',
+                coldWaterWarning: '⚠️ 冷水必須是煮沸過的水',
                 calculateButton: '計算最佳 10ml 倍數配比',
                 initialPrompt: '請選擇上方參數並點擊「計算」',
                 resultBest: '最佳調配結果 (10ml 單位):',
@@ -224,6 +248,7 @@
                 labelMilkAmount: 'Total Volume (ml):',
                 labelHotWater: 'Hot Water Temp. (℃):',
                 labelColdWater: 'Cold Water Temp. (℃):',
+                coldWaterWarning: '⚠️ Must be boiled water',
                 calculateButton: 'Calculate Optimal 10ml Ratio',
                 initialPrompt: 'Please select parameters and click "Calculate"',
                 resultBest: 'Optimal Mixing Ratio (10ml units):',
@@ -250,6 +275,7 @@
             document.getElementById('labelMilkAmount').textContent = lang.labelMilkAmount;
             document.getElementById('labelHotWater').textContent = lang.labelHotWater;
             document.getElementById('labelColdWater').textContent = lang.labelColdWater;
+            document.getElementById('coldWaterWarning').textContent = lang.coldWaterWarning;
             document.getElementById('calculateButton').textContent = lang.calculateButton;
             
             document.getElementById('language-toggle').textContent = (currentLang === 'zh') ? 'English' : '中文';
