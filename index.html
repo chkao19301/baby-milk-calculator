@@ -534,9 +534,10 @@
         /* 結果操作按鈕樣式 */
         .result-actions {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .result-action-btn {
@@ -779,13 +780,28 @@
 
     <div class="calculator-container" role="main" aria-label="奶粉沖泡計算機">
         
-        <button id="language-toggle" onclick="switchLanguage()" aria-label="切換語言" aria-pressed="false">English</button>
+        <button 
+            id="language-toggle" 
+            onclick="window.milkCalculator.switchLanguage()" 
+            aria-label="切換語言" 
+            aria-pressed="false"
+            type="button"
+        >
+            English
+        </button>
 
         <h1 id="mainTitle">👶 奶粉沖泡水量計算 (10ml 單位)</h1>
 
         <!-- 說明與引導區塊 -->
         <div class="info-section" role="region" aria-labelledby="infoToggle">
-            <button class="info-toggle" id="infoToggle" onclick="toggleInfo()" aria-expanded="false" aria-controls="infoContent">
+            <button 
+                class="info-toggle" 
+                id="infoToggle" 
+                onclick="window.milkCalculator.toggleInfo()" 
+                aria-expanded="false" 
+                aria-controls="infoContent"
+                type="button"
+            >
                 <span id="infoToggleText">📖 使用說明與常見問題</span>
             </button>
             <div class="info-content" id="infoContent" role="region" aria-labelledby="infoToggle">
@@ -843,8 +859,48 @@
     </div>
 
     <script>
-        // --- JavaScript 保持不變 ---
-        const languageData = {
+        /**
+         * 奶粉沖泡計算機應用程式
+         * 使用 IIFE 模式避免全局命名空間污染
+         */
+        (function() {
+            'use strict';
+
+            // ============================================
+            // 常數定義
+            // ============================================
+            const TEMP_MIN = 42;
+            const TEMP_MAX = 48;
+            const TEMP_IDEAL = 45;
+            const VOLUME_STEP = 10;
+            const DEBOUNCE_DELAY = 300;
+            const STORAGE_KEY = 'milkCalculator_settings';
+            const TOAST_DURATION = 2000;
+            const ANIMATION_DURATION = 300;
+
+            // DOM 元素 ID 常數
+            const ELEMENT_IDS = {
+                appTitle: 'appTitle',
+                mainTitle: 'mainTitle',
+                labelMilkAmount: 'labelMilkAmount',
+                labelHotWater: 'labelHotWater',
+                labelColdWater: 'labelColdWater',
+                milkAmount: 'milk_amount',
+                hotWaterTemp: 'hot_water_temp',
+                coldWaterTemp: 'cold_water_temp',
+                resultArea: 'result_area',
+                infoContent: 'infoContent',
+                infoContentText: 'infoContentText',
+                infoToggle: 'infoToggle',
+                infoToggleText: 'infoToggleText',
+                languageToggle: 'language-toggle',
+                coldWaterWarning: 'coldWaterWarning'
+            };
+
+            // ============================================
+            // 語言資料
+            // ============================================
+            const languageData = {
             'zh': {
                 appTitle: '🍼 奶粉沖泡計算機',
                 mainTitle: '👶 奶粉沖泡水量計算',
@@ -915,82 +971,321 @@
             }
         };
 
-        // 檢測使用者瀏覽器的預設語言
-        function detectUserLanguage() {
-            const browserLang = navigator.language || navigator.userLanguage;
-            // 檢查是否為中文（包括 zh、zh-TW、zh-CN、zh-HK 等）
-            if (browserLang.toLowerCase().startsWith('zh')) {
-                return 'zh';
-            }
-            return 'en';
-        }
+            // ============================================
+            // 應用狀態
+            // ============================================
+            let currentLang = detectUserLanguage();
 
-        let currentLang = detectUserLanguage(); 
+            // ============================================
+            // 工具函數
+            // ============================================
 
-        function switchLanguage() {
-            currentLang = (currentLang === 'zh') ? 'en' : 'zh';
-            applyLanguage();
-        }
+            /**
+             * 檢測使用者瀏覽器的預設語言
+             * @returns {string} 'zh' 或 'en'
+             */
+            function detectUserLanguage() {
+                const browserLang = navigator.language || navigator.userLanguage || 'en';
+                return browserLang.toLowerCase().startsWith('zh') ? 'zh' : 'en';
+            }
 
-        function toggleInfo() {
-            const infoContent = document.getElementById('infoContent');
-            const infoToggle = document.getElementById('infoToggle');
-            if (infoContent && infoToggle) {
-                infoContent.classList.toggle('expanded');
-                infoToggle.classList.toggle('expanded');
+            /**
+             * 安全地獲取 DOM 元素
+             * @param {string} id - 元素 ID
+             * @returns {HTMLElement|null} DOM 元素或 null
+             */
+            function getElement(id) {
+                try {
+                    return document.getElementById(id);
+                } catch (error) {
+                    console.warn(`無法獲取元素 ${id}:`, error);
+                    return null;
+                }
             }
-        }
 
-        function updateInfoContent() {
-            const lang = languageData[currentLang];
-            const infoContentText = document.getElementById('infoContentText');
-            if (infoContentText) {
-                infoContentText.innerHTML = `
-                    <p><strong>${lang.infoWhy10ml}</strong><br>${lang.infoWhy10mlContent}</p>
-                    <p><strong>${lang.infoWhyTemp}</strong><br>${lang.infoWhyTempContent}</p>
-                    <p><strong>${lang.infoHowToUse}</strong><br>${lang.infoHowToUseContent}</p>
-                `;
+            /**
+             * 防抖函數 - 延遲執行函數，避免頻繁調用
+             * @param {Function} func - 要防抖的函數
+             * @param {number} wait - 等待時間（毫秒）
+             * @returns {Function} 防抖後的函數
+             */
+            function debounce(func, wait) {
+                let timeout = null;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func.apply(this, args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
             }
-            const infoToggleText = document.getElementById('infoToggleText');
-            if (infoToggleText) {
-                infoToggleText.textContent = lang.infoToggleText;
-            }
-        }
 
-        function applyLanguage() {
-            const lang = languageData[currentLang];
-            
-            // 安全地更新所有元素，添加 null 檢查
-            const appTitleEl = document.getElementById('appTitle');
-            if (appTitleEl) appTitleEl.textContent = lang.appTitle;
-            
-            const mainTitleEl = document.getElementById('mainTitle');
-            if (mainTitleEl) mainTitleEl.textContent = lang.mainTitle;
-            
-            const labelMilkAmountEl = document.getElementById('labelMilkAmount');
-            if (labelMilkAmountEl) labelMilkAmountEl.textContent = lang.labelMilkAmount;
-            
-            const labelHotWaterEl = document.getElementById('labelHotWater');
-            if (labelHotWaterEl) labelHotWaterEl.textContent = lang.labelHotWater;
-            
-            const labelColdWaterEl = document.getElementById('labelColdWater');
-            if (labelColdWaterEl) {
-                // 使用 innerHTML 同時設置 label 文字和提示圖標
-                labelColdWaterEl.innerHTML = lang.labelColdWater + '<span id="coldWaterWarning" class="cold-water-warning" data-tooltip="' + lang.coldWaterWarning + '" role="button" tabindex="0" aria-label="冷水安全提示">💡</span>';
+            /**
+             * 顯示 Toast 通知
+             * @param {string} message - 要顯示的訊息
+             * @param {number} duration - 顯示持續時間（毫秒）
+             */
+            function showToast(message, duration = TOAST_DURATION) {
+                const toast = document.createElement('div');
+                toast.className = 'copy-success-toast';
+                toast.textContent = message;
+                toast.setAttribute('role', 'alert');
+                toast.setAttribute('aria-live', 'polite');
+                document.body.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.animation = 'slideIn 0.3s ease-out reverse';
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            document.body.removeChild(toast);
+                        }
+                    }, ANIMATION_DURATION);
+                }, duration);
+            } 
+
+            // ============================================
+            // 語言管理
+            // ============================================
+
+            /**
+             * 切換語言
+             */
+            function switchLanguage() {
+                currentLang = currentLang === 'zh' ? 'en' : 'zh';
+                applyLanguage();
             }
-            
-            // 更新語言切換按鈕文字和 ARIA 狀態
-            const toggleButton = document.getElementById('language-toggle');
-            if (toggleButton) {
-                toggleButton.textContent = (currentLang === 'zh') ? 'English' : '中文';
-                toggleButton.setAttribute('aria-pressed', currentLang === 'zh' ? 'true' : 'false');
+
+            /**
+             * 更新說明內容
+             */
+            function updateInfoContent() {
+                const lang = languageData[currentLang];
+                if (!lang) return;
+
+                const infoContentText = getElement(ELEMENT_IDS.infoContentText);
+                if (infoContentText) {
+                    infoContentText.innerHTML = `
+                        <p><strong>${escapeHtml(lang.infoWhy10ml)}</strong><br>${lang.infoWhy10mlContent}</p>
+                        <p><strong>${escapeHtml(lang.infoWhyTemp)}</strong><br>${lang.infoWhyTempContent}</p>
+                        <p><strong>${escapeHtml(lang.infoHowToUse)}</strong><br>${lang.infoHowToUseContent}</p>
+                    `;
+                }
+
+                const infoToggleText = getElement(ELEMENT_IDS.infoToggleText);
+                if (infoToggleText) {
+                    infoToggleText.textContent = lang.infoToggleText;
+                }
             }
-            
-            // 更新說明內容
-            updateInfoContent();
-            
-            calculateWaterAmount(true); 
-        }
+
+            /**
+             * HTML 轉義函數，防止 XSS
+             * @param {string} text - 要轉義的文字
+             * @returns {string} 轉義後的文字
+             */
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            /**
+             * 切換說明區塊的展開/收起狀態
+             */
+            function toggleInfo() {
+                const infoContent = getElement(ELEMENT_IDS.infoContent);
+                const infoToggle = getElement(ELEMENT_IDS.infoToggle);
+                
+                if (infoContent && infoToggle) {
+                    const isExpanded = infoContent.classList.contains('expanded');
+                    infoContent.classList.toggle('expanded');
+                    infoToggle.classList.toggle('expanded');
+                    infoToggle.setAttribute('aria-expanded', !isExpanded);
+                }
+            }
+
+            /**
+             * 應用當前語言設定到所有 UI 元素
+             */
+            function applyLanguage() {
+                const lang = languageData[currentLang];
+                if (!lang) {
+                    console.warn('語言資料不存在:', currentLang);
+                    return;
+                }
+
+                // 更新標題
+                const appTitleEl = getElement(ELEMENT_IDS.appTitle);
+                if (appTitleEl) appTitleEl.textContent = lang.appTitle;
+
+                const mainTitleEl = getElement(ELEMENT_IDS.mainTitle);
+                if (mainTitleEl) mainTitleEl.textContent = lang.mainTitle;
+
+                // 更新表單標籤
+                const labelMilkAmountEl = getElement(ELEMENT_IDS.labelMilkAmount);
+                if (labelMilkAmountEl) labelMilkAmountEl.textContent = lang.labelMilkAmount;
+
+                const labelHotWaterEl = getElement(ELEMENT_IDS.labelHotWater);
+                if (labelHotWaterEl) labelHotWaterEl.textContent = lang.labelHotWater;
+
+                const labelColdWaterEl = getElement(ELEMENT_IDS.labelColdWater);
+                if (labelColdWaterEl) {
+                    const warningTooltip = escapeHtml(lang.coldWaterWarning);
+                    labelColdWaterEl.innerHTML = `${lang.labelColdWater}<span id="${ELEMENT_IDS.coldWaterWarning}" class="cold-water-warning" data-tooltip="${warningTooltip}" role="button" tabindex="0" aria-label="${lang.safetyNotice}">💡</span>`;
+                }
+
+                // 更新語言切換按鈕
+                const toggleButton = getElement(ELEMENT_IDS.languageToggle);
+                if (toggleButton) {
+                    toggleButton.textContent = currentLang === 'zh' ? 'English' : '中文';
+                    toggleButton.setAttribute('aria-pressed', currentLang === 'zh' ? 'true' : 'false');
+                    toggleButton.setAttribute('aria-label', currentLang === 'zh' ? 'Switch to English' : '切換至中文');
+                }
+
+                // 更新說明內容
+                updateInfoContent();
+
+                // 重新計算（如果是語言切換）
+                calculateWaterAmount(true);
+            }
+
+            // ============================================
+            // 設定管理（LocalStorage & URL）
+            // ============================================
+
+            /**
+             * 獲取當前表單設定值
+             * @returns {Object|null} 設定物件或 null
+             */
+            function getFormSettings() {
+                try {
+                    const milkAmountEl = getElement(ELEMENT_IDS.milkAmount);
+                    const hotWaterTempEl = getElement(ELEMENT_IDS.hotWaterTemp);
+                    const coldWaterTempEl = getElement(ELEMENT_IDS.coldWaterTemp);
+
+                    if (!milkAmountEl || !hotWaterTempEl || !coldWaterTempEl) {
+                        return null;
+                    }
+
+                    return {
+                        milkAmount: milkAmountEl.value,
+                        hotWaterTemp: hotWaterTempEl.value,
+                        coldWaterTemp: coldWaterTempEl.value
+                    };
+                } catch (error) {
+                    console.warn('獲取表單設定失敗:', error);
+                    return null;
+                }
+            }
+
+            /**
+             * 更新 URL 參數以反映當前設定
+             */
+            function updateURLParams() {
+                const settings = getFormSettings();
+                if (!settings) return;
+
+                try {
+                    const params = new URLSearchParams();
+                    params.set('milk', settings.milkAmount);
+                    params.set('hot', settings.hotWaterTemp);
+                    params.set('cold', settings.coldWaterTemp);
+
+                    const newURL = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+                    window.history.replaceState({}, '', newURL);
+                } catch (error) {
+                    console.warn('更新 URL 參數失敗:', error);
+                }
+            }
+
+            /**
+             * 從 URL 參數載入設定
+             * @returns {boolean} 是否成功載入參數
+             */
+            function loadURLParams() {
+                try {
+                    const params = new URLSearchParams(window.location.search);
+                    const milkAmount = params.get('milk');
+                    const hotWaterTemp = params.get('hot');
+                    const coldWaterTemp = params.get('cold');
+
+                    let hasParams = false;
+
+                    if (milkAmount) {
+                        const milkSelect = getElement(ELEMENT_IDS.milkAmount);
+                        if (milkSelect && Array.from(milkSelect.options).some(opt => opt.value === milkAmount)) {
+                            milkSelect.value = milkAmount;
+                            hasParams = true;
+                        }
+                    }
+
+                    if (hotWaterTemp) {
+                        const hotSelect = getElement(ELEMENT_IDS.hotWaterTemp);
+                        if (hotSelect && Array.from(hotSelect.options).some(opt => opt.value === hotWaterTemp)) {
+                            hotSelect.value = hotWaterTemp;
+                            hasParams = true;
+                        }
+                    }
+
+                    if (coldWaterTemp) {
+                        const coldSelect = getElement(ELEMENT_IDS.coldWaterTemp);
+                        if (coldSelect && Array.from(coldSelect.options).some(opt => opt.value === coldWaterTemp)) {
+                            coldSelect.value = coldWaterTemp;
+                            hasParams = true;
+                        }
+                    }
+
+                    return hasParams;
+                } catch (error) {
+                    console.warn('載入 URL 參數失敗:', error);
+                    return false;
+                }
+            }
+
+            /**
+             * 保存設定到 LocalStorage
+             */
+            function saveSettings() {
+                const settings = getFormSettings();
+                if (!settings) return;
+
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+                } catch (error) {
+                    console.warn('無法保存設定:', error);
+                }
+            }
+
+            /**
+             * 從 LocalStorage 載入設定
+             * @returns {boolean} 是否成功載入設定
+             */
+            function loadSettings() {
+                try {
+                    const savedSettings = localStorage.getItem(STORAGE_KEY);
+                    if (!savedSettings) return false;
+
+                    const settings = JSON.parse(savedSettings);
+                    const milkAmountEl = getElement(ELEMENT_IDS.milkAmount);
+                    const hotWaterTempEl = getElement(ELEMENT_IDS.hotWaterTemp);
+                    const coldWaterTempEl = getElement(ELEMENT_IDS.coldWaterTemp);
+
+                    if (milkAmountEl && settings.milkAmount) {
+                        milkAmountEl.value = settings.milkAmount;
+                    }
+                    if (hotWaterTempEl && settings.hotWaterTemp) {
+                        hotWaterTempEl.value = settings.hotWaterTemp;
+                    }
+                    if (coldWaterTempEl && settings.coldWaterTemp) {
+                        coldWaterTempEl.value = settings.coldWaterTemp;
+                    }
+
+                    return true;
+                } catch (error) {
+                    console.warn('無法載入設定:', error);
+                    return false;
+                }
+            }
 
         // URL 參數管理
         function updateURLParams() {
@@ -1072,301 +1367,487 @@
             return false;
         }
 
-        // 任務 5：複製結果功能
-        function copyResult() {
-            const resultArea = document.getElementById('result_area');
-            if (!resultArea) return;
-            
-            const resultText = resultArea.innerText || resultArea.textContent;
-            if (!resultText || resultText.includes('initialPrompt')) return;
-            
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(resultText).then(() => {
-                    showCopySuccess();
-                }).catch(err => {
-                    console.warn('複製失敗:', err);
-                    fallbackCopy(resultText);
-                });
-            } else {
-                fallbackCopy(resultText);
-            }
-        }
+            // ============================================
+            // 複製與分享功能
+            // ============================================
 
-        function fallbackCopy(text) {
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            textArea.style.position = 'fixed';
-            textArea.style.opacity = '0';
-            document.body.appendChild(textArea);
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                showCopySuccess();
-            } catch (err) {
-                console.warn('複製失敗:', err);
-            }
-            document.body.removeChild(textArea);
-        }
+            /**
+             * 獲取結果區域的文字內容
+             * @returns {string|null} 結果文字或 null
+             */
+            function getResultText() {
+                const resultArea = getElement(ELEMENT_IDS.resultArea);
+                if (!resultArea) return null;
 
-        function showCopySuccess() {
-            const lang = languageData[currentLang];
-            const toast = document.createElement('div');
-            toast.className = 'copy-success-toast';
-            toast.textContent = lang.copySuccess;
-            toast.setAttribute('role', 'alert');
-            toast.setAttribute('aria-live', 'polite');
-            document.body.appendChild(toast);
-            setTimeout(() => {
-                toast.style.animation = 'slideIn 0.3s ease-out reverse';
-                setTimeout(() => document.body.removeChild(toast), 300);
-            }, 2000);
-        }
-        
-        // 分享功能實現
-        async function shareResult() {
-            const resultArea = document.getElementById('result_area');
-            if (!resultArea) return;
-            
-            const resultText = resultArea.innerText || resultArea.textContent;
-            if (!resultText || resultText.includes('initialPrompt')) return;
-            
-            const lang = languageData[currentLang];
-            
-            // 確保 URL 包含當前參數
-            updateURLParams();
-            const shareURL = window.location.href;
-            
-            const shareData = {
-                title: lang.appTitle,
-                text: `${lang.appTitle}\n\n${resultText}`,
-                url: shareURL
-            };
-            
-            try {
-                if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-                    await navigator.share(shareData);
-                    showToast(lang.shareSuccess);
-                } else {
-                    // Fallback: 複製到剪貼板（包含 URL）
-                    const textToCopy = `${resultText}\n\n${shareURL}`;
+                const resultText = resultArea.innerText || resultArea.textContent || '';
+                const lang = languageData[currentLang];
+                const initialPrompt = lang ? lang.initialPrompt : '';
+
+                // 檢查是否為初始提示或空內容
+                if (!resultText || resultText.trim() === '' || resultText.includes(initialPrompt)) {
+                    return null;
+                }
+
+                return resultText;
+            }
+
+            /**
+             * 使用傳統方法複製文字（fallback）
+             * @param {string} text - 要複製的文字
+             * @returns {boolean} 是否成功
+             */
+            function fallbackCopy(text) {
+                try {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    textArea.style.position = 'fixed';
+                    textArea.style.top = '0';
+                    textArea.style.left = '0';
+                    textArea.style.opacity = '0';
+                    textArea.style.pointerEvents = 'none';
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    textArea.setSelectionRange(0, text.length);
+
+                    const success = document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    return success;
+                } catch (error) {
+                    console.warn('Fallback 複製失敗:', error);
+                    return false;
+                }
+            }
+
+            /**
+             * 複製結果到剪貼板
+             */
+            async function copyResult() {
+                const resultText = getResultText();
+                if (!resultText) return;
+
+                const lang = languageData[currentLang];
+                if (!lang) return;
+
+                try {
                     if (navigator.clipboard && navigator.clipboard.writeText) {
-                        await navigator.clipboard.writeText(textToCopy);
-                        showCopySuccess();
+                        await navigator.clipboard.writeText(resultText);
+                        showToast(lang.copySuccess);
                     } else {
-                        fallbackCopy(textToCopy);
+                        if (fallbackCopy(resultText)) {
+                            showToast(lang.copySuccess);
+                        } else {
+                            showToast(lang.shareError);
+                        }
+                    }
+                } catch (error) {
+                    console.warn('複製失敗:', error);
+                    if (fallbackCopy(resultText)) {
+                        showToast(lang.copySuccess);
+                    } else {
+                        showToast(lang.shareError);
                     }
                 }
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.warn('分享失敗:', err);
-                    showToast(lang.shareError);
+            }
+
+            /**
+             * 分享結果
+             */
+            async function shareResult() {
+                const resultText = getResultText();
+                if (!resultText) return;
+
+                const lang = languageData[currentLang];
+                if (!lang) return;
+
+                // 確保 URL 包含當前參數
+                updateURLParams();
+                const shareURL = window.location.href;
+
+                const shareData = {
+                    title: lang.appTitle,
+                    text: `${lang.appTitle}\n\n${resultText}`,
+                    url: shareURL
+                };
+
+                try {
+                    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+                        await navigator.share(shareData);
+                        showToast(lang.shareSuccess);
+                    } else {
+                        // Fallback: 複製到剪貼板（包含 URL）
+                        const textToCopy = `${resultText}\n\n${shareURL}`;
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            await navigator.clipboard.writeText(textToCopy);
+                            showToast(lang.copySuccess);
+                        } else {
+                            if (fallbackCopy(textToCopy)) {
+                                showToast(lang.copySuccess);
+                            } else {
+                                showToast(lang.shareError);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    if (error.name !== 'AbortError') {
+                        console.warn('分享失敗:', error);
+                        showToast(lang.shareError);
+                    }
                 }
             }
-        }
-        
-        function showToast(message) {
-            const toast = document.createElement('div');
-            toast.className = 'copy-success-toast';
-            toast.textContent = message;
-            toast.setAttribute('role', 'alert');
-            toast.setAttribute('aria-live', 'polite');
-            document.body.appendChild(toast);
-            setTimeout(() => {
-                toast.style.animation = 'slideIn 0.3s ease-out reverse';
-                setTimeout(() => document.body.removeChild(toast), 300);
-            }, 2000);
-        }
-        
-        // 防抖函數
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
 
-        function calculateWaterAmount(isLanguageSwitch = false) {
-            const totalVolume = parseInt(document.getElementById('milk_amount').value);
-            const Th = parseInt(document.getElementById('hot_water_temp').value);
-            const Tc = parseInt(document.getElementById('cold_water_temp').value);
-            const T_min = 42;
-            const T_max = 48;
-            const T_ideal = 45;
-            const resultArea = document.getElementById('result_area');
-            const lang = languageData[currentLang];
+            // ============================================
+            // 核心計算邏輯
+            // ============================================
 
-            // 保存設定
-            saveSettings();
-            
-            // 更新 URL 參數
-            updateURLParams();
-
-            if (isLanguageSwitch && resultArea.innerHTML.includes('initialPrompt')) {
-                resultArea.innerHTML = `<p id="initialPrompt">${lang.initialPrompt}</p>`;
-                return;
+            /**
+             * 計算混合後的溫度
+             * @param {number} hotVolume - 熱水體積 (ml)
+             * @param {number} hotTemp - 熱水溫度 (℃)
+             * @param {number} coldVolume - 冷水體積 (ml)
+             * @param {number} coldTemp - 冷水溫度 (℃)
+             * @param {number} totalVolume - 總體積 (ml)
+             * @returns {number} 混合後的溫度 (℃)
+             */
+            function calculateMixedTemperature(hotVolume, hotTemp, coldVolume, coldTemp, totalVolume) {
+                if (totalVolume === 0) return 0;
+                return (hotVolume * hotTemp + coldVolume * coldTemp) / totalVolume;
             }
 
-            let bestVh = 0;
-            let bestVc = 0;
-            let closestTemp = 0;
-            let minTempDiff = Infinity; 
+            /**
+             * 尋找最佳的水量配比
+             * @param {number} totalVolume - 總奶量 (ml)
+             * @param {number} hotTemp - 熱水溫度 (℃)
+             * @param {number} coldTemp - 冷水溫度 (℃)
+             * @returns {Object|null} 最佳配比 {hotVolume, coldVolume, temperature} 或 null
+             */
+            function findOptimalRatio(totalVolume, hotTemp, coldTemp) {
+                // 驗證溫度範圍是否可行
+                if (TEMP_MIN < coldTemp || TEMP_MAX > hotTemp) {
+                    return null;
+                }
 
-            if (T_min < Tc || T_max > Th) {
-                let errorMsg = lang.errorCannotMixMsg.replace('{Th}', Th).replace('{Tc}', Tc).replace('{min}', T_min).replace('{max}', T_max);
-                let suggestion = lang.errorCannotMixSuggestion || '';
-                resultArea.innerHTML = `
+                let bestHotVolume = 0;
+                let bestColdVolume = 0;
+                let bestTemperature = 0;
+                let minTempDiff = Infinity;
+
+                // 遍歷所有可能的 10ml 倍數組合
+                for (let hotVolume = VOLUME_STEP; hotVolume < totalVolume; hotVolume += VOLUME_STEP) {
+                    const coldVolume = totalVolume - hotVolume;
+                    
+                    // 確保冷水也是 10ml 倍數
+                    if (coldVolume % VOLUME_STEP !== 0) continue;
+
+                    const mixedTemp = calculateMixedTemperature(
+                        hotVolume, hotTemp,
+                        coldVolume, coldTemp,
+                        totalVolume
+                    );
+
+                    // 檢查是否在理想範圍內
+                    if (mixedTemp >= TEMP_MIN && mixedTemp <= TEMP_MAX) {
+                        const tempDiff = Math.abs(mixedTemp - TEMP_IDEAL);
+
+                        // 選擇最接近理想溫度的配比
+                        if (tempDiff < minTempDiff) {
+                            minTempDiff = tempDiff;
+                            bestHotVolume = hotVolume;
+                            bestColdVolume = coldVolume;
+                            bestTemperature = mixedTemp;
+                        }
+                    }
+                }
+
+                if (bestHotVolume > 0) {
+                    return {
+                        hotVolume: bestHotVolume,
+                        coldVolume: bestColdVolume,
+                        temperature: bestTemperature
+                    };
+                }
+
+                return null;
+            }
+
+            /**
+             * 渲染錯誤訊息
+             * @param {string} title - 錯誤標題
+             * @param {string} message - 錯誤訊息
+             * @param {string} suggestion - 建議
+             * @returns {string} HTML 字串
+             */
+            function renderErrorCard(title, message, suggestion) {
+                return `
                     <div class="error-card" role="alert">
-                        <div class="error-card-title">${lang.errorCannotMixTitle}</div>
-                        <div class="error-card-message">${errorMsg}</div>
-                        <div class="error-card-suggestion">${suggestion}</div>
+                        <div class="error-card-title">${escapeHtml(title)}</div>
+                        <div class="error-card-message">${escapeHtml(message)}</div>
+                        <div class="error-card-suggestion">${escapeHtml(suggestion)}</div>
                     </div>
                 `;
-                return;
             }
 
-            for (let Vh_try = 10; Vh_try < totalVolume; Vh_try += 10) {
-                const Vc_try = totalVolume - Vh_try;
-                if (Vc_try % 10 !== 0) continue; 
-                
-                const Tm_actual = (Vh_try * Th + Vc_try * Tc) / totalVolume;
+            /**
+             * 渲染成功結果
+             * @param {Object} result - 計算結果
+             * @param {number} hotTemp - 熱水溫度
+             * @param {number} coldTemp - 冷水溫度
+             * @returns {string} HTML 字串
+             */
+            function renderSuccessResult(result, hotTemp, coldTemp) {
+                const lang = languageData[currentLang];
+                if (!lang) return '';
 
-                if (Tm_actual >= T_min && Tm_actual <= T_max) {
-                    const tempDiff = Math.abs(Tm_actual - T_ideal);
-                    
-                    if (tempDiff < minTempDiff) {
-                        minTempDiff = tempDiff;
-                        bestVh = Vh_try;
-                        bestVc = Vc_try;
-                        closestTemp = Tm_actual;
-                    }
-                }
-            }
+                const note = lang.resultRangeNote
+                    .replace('{min}', TEMP_MIN)
+                    .replace('{max}', TEMP_MAX);
+                const hotLabel = lang.resultHot.replace('{temp}', hotTemp);
+                const coldLabel = lang.resultCold.replace('{temp}', coldTemp);
+                const steps = lang.resultSteps
+                    .replace('{hot}', result.hotVolume)
+                    .replace('{cold}', result.coldVolume);
 
-            if (bestVh > 0) {
-                let note = lang.resultRangeNote.replace('{min}', T_min).replace('{max}', T_max);
-                let hotLabel = lang.resultHot.replace('{temp}', Th);
-                let coldLabel = lang.resultCold.replace('{temp}', Tc);
-                let steps = lang.resultSteps.replace('{hot}', bestVh).replace('{cold}', bestVc);
-
-                resultArea.innerHTML = `
-                    <p style="font-size: 1.2em; margin-bottom: 15px; font-weight: 700; color: var(--color-text);">${lang.resultBest}</p>
+                return `
+                    <p style="font-size: 1.2em; margin-bottom: 15px; font-weight: 700; color: var(--color-text);">${escapeHtml(lang.resultBest)}</p>
                     <hr style="border: none; border-top: 2px solid rgba(255, 158, 199, 0.3); margin: 15px 0;">
-                    <p style="font-size: 1.15em; margin: 14px 0; color: var(--color-text); font-weight: 600;">${hotLabel}<strong style="color: var(--color-primary-dark); font-size: 1.6em; font-weight: 800; text-shadow: 0 2px 4px rgba(233, 30, 99, 0.25); letter-spacing: 0.5px; margin-left: 8px; font-family: var(--font-family-mono);">${bestVh} ml</strong></p>
-                    <p style="font-size: 1.15em; margin: 14px 0; color: var(--color-text); font-weight: 600;">${coldLabel}<strong style="color: var(--color-primary-dark); font-size: 1.6em; font-weight: 800; text-shadow: 0 2px 4px rgba(233, 30, 99, 0.25); letter-spacing: 0.5px; margin-left: 8px; font-family: var(--font-family-mono);">${bestVc} ml</strong></p>
+                    <p style="font-size: 1.15em; margin: 14px 0; color: var(--color-text); font-weight: 600;">${escapeHtml(hotLabel)}<strong style="color: var(--color-primary-dark); font-size: 1.6em; font-weight: 800; text-shadow: 0 2px 4px rgba(233, 30, 99, 0.25); letter-spacing: 0.5px; margin-left: 8px; font-family: var(--font-family-mono);">${result.hotVolume} ml</strong></p>
+                    <p style="font-size: 1.15em; margin: 14px 0; color: var(--color-text); font-weight: 600;">${escapeHtml(coldLabel)}<strong style="color: var(--color-primary-dark); font-size: 1.6em; font-weight: 800; text-shadow: 0 2px 4px rgba(233, 30, 99, 0.25); letter-spacing: 0.5px; margin-left: 8px; font-family: var(--font-family-mono);">${result.coldVolume} ml</strong></p>
                     <p style="font-size:1.15em; color:#FF6B35; margin-top: 18px; font-weight: 700;">
-                        ${lang.resultActualTemp}<strong style="color: var(--color-primary-dark); font-size: 1.7em; font-weight: 800; text-shadow: 0 2px 4px rgba(233, 30, 99, 0.25); letter-spacing: 0.5px; margin-left: 8px; font-family: var(--font-family-mono);">${closestTemp.toFixed(1)} ℃</strong>
+                        ${escapeHtml(lang.resultActualTemp)}<strong style="color: var(--color-primary-dark); font-size: 1.7em; font-weight: 800; text-shadow: 0 2px 4px rgba(233, 30, 99, 0.25); letter-spacing: 0.5px; margin-left: 8px; font-family: var(--font-family-mono);">${result.temperature.toFixed(1)} ℃</strong>
                     </p>
-                    <p style="font-size:0.95em; color:var(--color-text-light); margin-top: 12px; font-weight: 500;">${note}</p>
+                    <p style="font-size:0.95em; color:var(--color-text-light); margin-top: 12px; font-weight: 500;">${escapeHtml(note)}</p>
                     <div style="font-size:0.9em; color:var(--color-text); margin-top: 16px; padding: 16px; background: rgba(255, 184, 77, 0.1); border-radius: 12px; line-height: 1.6;">${steps}</div>
                     <div class="result-actions">
-                        <button class="result-action-btn" onclick="copyResult()" aria-label="${lang.copyResult}">${lang.copyResult}</button>
-                        <button class="result-action-btn" onclick="shareResult()" aria-label="${lang.shareResult}">${lang.shareResult}</button>
-                    </div>
-                `;
-            } else {
-                 let errorMsg = lang.errorNo10xMsg.replace('{min}', T_min).replace('{max}', T_max);
-                resultArea.innerHTML = `
-                    <div class="error-card" role="alert">
-                        <div class="error-card-title">${lang.errorNo10xTitle}</div>
-                        <div class="error-card-message">${errorMsg}</div>
-                        <div class="error-card-suggestion">${lang.errorNo10xHint}</div>
+                        <button class="result-action-btn" onclick="window.milkCalculator.copyResult()" aria-label="${escapeHtml(lang.copyResult)}">${escapeHtml(lang.copyResult)}</button>
+                        <button class="result-action-btn" onclick="window.milkCalculator.shareResult()" aria-label="${escapeHtml(lang.shareResult)}">${escapeHtml(lang.shareResult)}</button>
                     </div>
                 `;
             }
-        }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // 優先載入 URL 參數，如果沒有參數再載入 localStorage
-            const urlParamsLoaded = loadURLParams();
-            let settingsLoaded = false;
-            
-            // 如果沒有 URL 參數，才載入 localStorage 的設定
-            if (!urlParamsLoaded) {
-                settingsLoaded = loadSettings();
-            }
-            
-            // 如果有 URL 參數，使用說明預設收起；如果沒有參數，預設展開
-            const infoToggle = document.getElementById('infoToggle');
-            const infoContent = document.getElementById('infoContent');
-            if (infoToggle && infoContent) {
-                if (!urlParamsLoaded) {
-                    // 沒有參數時，預設展開
-                    infoToggle.classList.add('expanded');
-                    infoContent.classList.add('expanded');
-                    infoToggle.setAttribute('aria-expanded', 'true');
-                } else {
-                    // 有參數時，預設收起
-                    infoToggle.classList.remove('expanded');
-                    infoContent.classList.remove('expanded');
-                    infoToggle.setAttribute('aria-expanded', 'false');
-                }
-            }
-            
-            // 確保按鈕文字正確更新
-            applyLanguage();
-            // 再次確認按鈕文字（防止時序問題）
-            setTimeout(() => {
-                const toggleButton = document.getElementById('language-toggle');
-                if (toggleButton) {
-                    if (currentLang === 'zh') {
-                        toggleButton.textContent = 'English';
+            /**
+             * 計算並顯示水量配比
+             * @param {boolean} isLanguageSwitch - 是否為語言切換觸發
+             */
+            function calculateWaterAmount(isLanguageSwitch = false) {
+                try {
+                    const milkAmountEl = getElement(ELEMENT_IDS.milkAmount);
+                    const hotWaterTempEl = getElement(ELEMENT_IDS.hotWaterTemp);
+                    const coldWaterTempEl = getElement(ELEMENT_IDS.coldWaterTemp);
+                    const resultArea = getElement(ELEMENT_IDS.resultArea);
+
+                    if (!milkAmountEl || !hotWaterTempEl || !coldWaterTempEl || !resultArea) {
+                        console.error('必要的 DOM 元素不存在');
+                        return;
+                    }
+
+                    const totalVolume = parseInt(milkAmountEl.value, 10);
+                    const hotTemp = parseInt(hotWaterTempEl.value, 10);
+                    const coldTemp = parseInt(coldWaterTempEl.value, 10);
+                    const lang = languageData[currentLang];
+
+                    if (!lang) {
+                        console.error('語言資料不存在');
+                        return;
+                    }
+
+                    // 驗證輸入值
+                    if (isNaN(totalVolume) || isNaN(hotTemp) || isNaN(coldTemp)) {
+                        console.error('無效的輸入值');
+                        return;
+                    }
+
+                    // 保存設定
+                    saveSettings();
+                    updateURLParams();
+
+                    // 如果是語言切換且當前顯示初始提示，只更新文字
+                    if (isLanguageSwitch && resultArea.innerHTML.includes('initialPrompt')) {
+                        resultArea.innerHTML = `<p id="initialPrompt">${escapeHtml(lang.initialPrompt)}</p>`;
+                        return;
+                    }
+
+                    // 檢查溫度範圍是否可行
+                    if (TEMP_MIN < coldTemp || TEMP_MAX > hotTemp) {
+                        const errorMsg = lang.errorCannotMixMsg
+                            .replace('{min}', TEMP_MIN)
+                            .replace('{max}', TEMP_MAX);
+                        resultArea.innerHTML = renderErrorCard(
+                            lang.errorCannotMixTitle,
+                            errorMsg,
+                            lang.errorCannotMixSuggestion || ''
+                        );
+                        return;
+                    }
+
+                    // 尋找最佳配比
+                    const result = findOptimalRatio(totalVolume, hotTemp, coldTemp);
+
+                    if (result) {
+                        resultArea.innerHTML = renderSuccessResult(result, hotTemp, coldTemp);
                     } else {
-                        toggleButton.textContent = '中文';
+                        const errorMsg = lang.errorNo10xMsg
+                            .replace('{min}', TEMP_MIN)
+                            .replace('{max}', TEMP_MAX);
+                        resultArea.innerHTML = renderErrorCard(
+                            lang.errorNo10xTitle,
+                            errorMsg,
+                            lang.errorNo10xHint || ''
+                        );
+                    }
+                } catch (error) {
+                    console.error('計算過程中發生錯誤:', error);
+                    const resultArea = getElement(ELEMENT_IDS.resultArea);
+                    if (resultArea) {
+                        const lang = languageData[currentLang];
+                        resultArea.innerHTML = renderErrorCard(
+                            lang ? lang.errorCannotMixTitle : '錯誤',
+                            '計算過程中發生錯誤，請重新嘗試。',
+                            ''
+                        );
                     }
                 }
-            }, 100);
-            
-            // 任務 1：實現即時計算功能 - 為所有 select 元素添加 change 事件監聽器（帶防抖）
-            const milkAmountSelect = document.getElementById('milk_amount');
-            const hotWaterTempSelect = document.getElementById('hot_water_temp');
-            const coldWaterTempSelect = document.getElementById('cold_water_temp');
-            
-            // 使用防抖機制，避免頻繁計算
-            const debouncedCalculate = debounce(calculateWaterAmount, 300);
-            
-            milkAmountSelect.addEventListener('change', debouncedCalculate);
-            hotWaterTempSelect.addEventListener('change', debouncedCalculate);
-            coldWaterTempSelect.addEventListener('change', debouncedCalculate);
-            
-            // 任務 7：鍵盤快捷鍵支援 - 為 select 元素添加 Enter 鍵和方向鍵監聽
-            [milkAmountSelect, hotWaterTempSelect, coldWaterTempSelect].forEach(select => {
-                select.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        calculateWaterAmount();
-                        select.focus();
-                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                        // 方向鍵選擇後自動計算
-                        setTimeout(() => debouncedCalculate(), 100);
-                    }
+            }
+
+            // ============================================
+            // 事件處理與初始化
+            // ============================================
+
+            /**
+             * 初始化表單事件監聽器
+             */
+            function initializeFormListeners() {
+                const milkAmountSelect = getElement(ELEMENT_IDS.milkAmount);
+                const hotWaterTempSelect = getElement(ELEMENT_IDS.hotWaterTemp);
+                const coldWaterTempSelect = getElement(ELEMENT_IDS.coldWaterTemp);
+
+                if (!milkAmountSelect || !hotWaterTempSelect || !coldWaterTempSelect) {
+                    console.error('表單元素不存在');
+                    return;
+                }
+
+                // 使用防抖機制，避免頻繁計算
+                const debouncedCalculate = debounce(calculateWaterAmount, DEBOUNCE_DELAY);
+
+                // 添加 change 事件監聽器
+                [milkAmountSelect, hotWaterTempSelect, coldWaterTempSelect].forEach(select => {
+                    select.addEventListener('change', debouncedCalculate);
+
+                    // 鍵盤快捷鍵支援
+                    select.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            calculateWaterAmount();
+                            select.focus();
+                        } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                            // 方向鍵選擇後自動計算
+                            setTimeout(() => debouncedCalculate(), 100);
+                        }
+                    });
                 });
-            });
-            
-            // 為安全性提示圖標添加鍵盤支援
-            const coldWaterWarning = document.getElementById('coldWaterWarning');
-            if (coldWaterWarning) {
-                coldWaterWarning.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        coldWaterWarning.click();
+            }
+
+            /**
+             * 初始化安全性提示圖標的鍵盤支援
+             */
+            function initializeSafetyWarning() {
+                // 使用事件委派，因為元素可能被動態更新
+                document.addEventListener('keydown', (e) => {
+                    const target = e.target;
+                    if (target && target.id === ELEMENT_IDS.coldWaterWarning) {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            target.click();
+                        }
                     }
                 });
             }
-            
-            
-            // 初始化說明內容
-            updateInfoContent();
-            
-            // 如果載入了設定或 URL 參數，觸發一次計算
-            if (settingsLoaded || urlParamsLoaded) {
-                setTimeout(() => calculateWaterAmount(), 100);
+
+            /**
+             * 初始化說明區塊的展開狀態
+             * @param {boolean} hasUrlParams - 是否有 URL 參數
+             */
+            function initializeInfoSection(hasUrlParams) {
+                const infoToggle = getElement(ELEMENT_IDS.infoToggle);
+                const infoContent = getElement(ELEMENT_IDS.infoContent);
+
+                if (infoToggle && infoContent) {
+                    if (!hasUrlParams) {
+                        // 沒有參數時，預設展開
+                        infoToggle.classList.add('expanded');
+                        infoContent.classList.add('expanded');
+                        infoToggle.setAttribute('aria-expanded', 'true');
+                    } else {
+                        // 有參數時，預設收起
+                        infoToggle.classList.remove('expanded');
+                        infoContent.classList.remove('expanded');
+                        infoToggle.setAttribute('aria-expanded', 'false');
+                    }
+                }
             }
-        });
+
+            /**
+             * 應用程式初始化
+             */
+            function initialize() {
+                try {
+                    // 優先載入 URL 參數，如果沒有參數再載入 localStorage
+                    const urlParamsLoaded = loadURLParams();
+                    let settingsLoaded = false;
+
+                    if (!urlParamsLoaded) {
+                        settingsLoaded = loadSettings();
+                    }
+
+                    // 初始化說明區塊
+                    initializeInfoSection(urlParamsLoaded);
+
+                    // 應用語言設定
+                    applyLanguage();
+
+                    // 確保語言切換按鈕文字正確（防止時序問題）
+                    setTimeout(() => {
+                        const toggleButton = getElement(ELEMENT_IDS.languageToggle);
+                        if (toggleButton) {
+                            toggleButton.textContent = currentLang === 'zh' ? 'English' : '中文';
+                        }
+                    }, 100);
+
+                    // 初始化表單事件監聽器
+                    initializeFormListeners();
+
+                    // 初始化安全性提示
+                    initializeSafetyWarning();
+
+                    // 初始化說明內容
+                    updateInfoContent();
+
+                    // 如果載入了設定或 URL 參數，觸發一次計算
+                    if (settingsLoaded || urlParamsLoaded) {
+                        setTimeout(() => calculateWaterAmount(), 100);
+                    }
+                } catch (error) {
+                    console.error('初始化失敗:', error);
+                }
+            }
+
+            // ============================================
+            // 公開 API（供 HTML onclick 使用）
+            // ============================================
+            window.milkCalculator = {
+                switchLanguage,
+                toggleInfo,
+                copyResult,
+                shareResult,
+                calculateWaterAmount
+            };
+
+            // 初始化應用程式
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initialize);
+            } else {
+                // DOM 已經載入完成
+                initialize();
+            }
+        })();
     </script>
 
 </body>
