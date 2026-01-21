@@ -3,18 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="智能奶粉沖泡計算機，幫助您計算熱水和冷水的最佳配比，確保水溫在42-48℃的理想範圍內。支援10ml倍數精確測量。">
+    <meta name="keywords" content="奶粉計算機,沖泡計算,嬰兒奶粉,水溫控制,育兒工具">
+    <meta name="author" content="Baby Milk Calculator">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="🍼 奶粉沖泡計算機">
+    <meta property="og:description" content="智能計算熱水和冷水的最佳配比，確保水溫在理想範圍內">
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary">
+    <meta property="twitter:title" content="🍼 奶粉沖泡計算機">
+    <meta property="twitter:description" content="智能計算熱水和冷水的最佳配比，確保水溫在理想範圍內">
     <title id="appTitle">🍼 奶粉沖泡計算機 (10倍數)</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* ============================================
+           CSS 變數系統 - 顏色、間距、動畫統一管理
+           ============================================ */
+        :root {
+            /* 主色調 */
+            --color-primary: #FF9EC7;
+            --color-primary-dark: #E91E63;
+            --color-secondary: #FFB84D;
+            --color-accent: #E91E63;
+            
+            /* 背景色 */
+            --color-bg-start: #E8F4F8;
+            --color-bg-mid: #F5E6F3;
+            --color-bg-end: #FFF0F5;
+            --color-text: #2C3E50;
+            --color-text-light: rgba(44, 62, 80, 0.85);
+            
+            /* 強調色 */
+            --color-warning: #FFB84D;
+            --color-error: #FF6B6B;
+            --color-success: #4CAF50;
+            
+            /* 毛玻璃效果 */
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-bg-light: rgba(255, 255, 255, 0.3);
+            --glass-bg-lighter: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --glass-blur: blur(20px);
+            
+            /* 間距系統 (4px 倍數) */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --spacing-xl: 20px;
+            --spacing-2xl: 24px;
+            --spacing-3xl: 32px;
+            --spacing-4xl: 40px;
+            
+            /* 字體系統 */
+            --font-family-base: 'Noto Sans TC', 'Poppins', 'Helvetica Neue', Arial, sans-serif;
+            --font-family-mono: 'Courier New', 'Monaco', monospace;
+            --font-size-xs: 0.85rem;
+            --font-size-sm: 0.95rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.1rem;
+            --font-size-xl: 1.2rem;
+            --font-size-2xl: 1.5rem;
+            --font-size-3xl: 1.8rem;
+            --font-size-4xl: 2.2rem;
+            --line-height-base: 1.6;
+            --line-height-tight: 1.4;
+            
+            /* 動畫系統 */
+            --transition-fast: 0.2s ease-out;
+            --transition-base: 0.3s ease-out;
+            --transition-slow: 0.5s ease-out;
+            
+            /* 圓角 */
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 20px;
+            --radius-xl: 24px;
+            
+            /* 陰影 */
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
         /* 基礎樣式與手機優化 - 親子向粉藍漸變背景 */
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-family: var(--font-family-base);
             margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #E8F4F8 0%, #F5E6F3 50%, #FFF0F5 100%);
+            padding: var(--spacing-xl);
+            background: linear-gradient(135deg, var(--color-bg-start) 0%, var(--color-bg-mid) 50%, var(--color-bg-end) 100%);
             background-attachment: fixed;
-            color: #2C3E50; /* 深灰色文字確保可讀性 */
+            color: var(--color-text);
             min-height: 100vh;
             position: relative;
+            line-height: var(--line-height-base);
         }
 
         /* 添加裝飾性雲朵背景（可選） */
@@ -34,16 +120,16 @@
         }
 
         .calculator-container {
-            background: rgba(255, 255, 255, 0.25); /* 半透明白色毛玻璃背景 */
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 25px;
-            padding-top: 20px;
-            border-radius: 24px; /* 增加圓角 */
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 
-                        0 2px 8px rgba(0, 0, 0, 0.05),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.5); /* 柔和陰影 + 內光 */
-            border: 1px solid rgba(255, 255, 255, 0.3); /* 半透明邊框 */
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            padding: var(--spacing-2xl);
+            padding-top: var(--spacing-xl);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg), 
+                        var(--shadow-sm),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--glass-border);
             position: relative;
             max-width: 100%;
             margin: 0 auto;
@@ -53,73 +139,79 @@
         /* 語言切換按鈕樣式 - 毛玻璃效果 */
         #language-toggle {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: var(--spacing-xl);
+            right: var(--spacing-xl);
             z-index: 10;
-            
-            padding: 8px 15px; 
-            font-size: 0.85em; 
-            
-            background: rgba(255, 184, 77, 0.3); /* 溫暖橙色半透明 */
+            padding: var(--spacing-sm) var(--spacing-md); 
+            font-size: var(--font-size-xs);
+            background: rgba(255, 184, 77, 0.3);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            color: #2C3E50;
+            color: var(--color-text);
             border: 1px solid rgba(255, 184, 77, 0.5);
-            border-radius: 12px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all var(--transition-base);
             font-weight: 600;
+            min-width: 44px;
+            min-height: 44px;
         }
         #language-toggle:hover {
             background: rgba(255, 184, 77, 0.5);
             transform: scale(1.05);
             box-shadow: 0 4px 12px rgba(255, 184, 77, 0.3);
         }
+        #language-toggle:focus {
+            outline: 2px solid var(--color-secondary);
+            outline-offset: 2px;
+        }
 
         /* 標題樣式 - 漸變文字效果 */
         h1 {
-            background: linear-gradient(135deg, #FF9EC7 0%, #FFB84D 50%, #FF9EC7 100%);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 50%, var(--color-primary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             text-align: center;
-            margin-top: 20px; 
-            margin-bottom: 30px; 
-            font-size: 1.8em;
+            margin-top: var(--spacing-xl);
+            margin-bottom: var(--spacing-3xl);
+            font-size: var(--font-size-3xl);
             padding-right: 70px;
-            padding-left: 10px;
+            padding-left: var(--spacing-md);
             font-weight: 700;
             letter-spacing: 0.5px;
+            line-height: var(--line-height-tight);
         }
 
         /* 說明區塊樣式 - 毛玻璃效果 */
         .info-section {
-            margin-bottom: 25px;
+            margin-bottom: var(--spacing-2xl);
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            border-radius: 16px;
-            padding: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-md);
         }
 
         .info-toggle {
-            background: linear-gradient(135deg, #FF9EC7 0%, #FFB84D 100%);
-            color: #2C3E50;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            color: var(--color-text);
             border: none;
-            border-radius: 12px;
-            padding: 10px 18px;
-            font-size: 0.95em;
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-md) var(--spacing-lg);
+            font-size: var(--font-size-sm);
             cursor: pointer;
             width: 100%;
             text-align: left;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.3s ease;
+            transition: all var(--transition-base);
             font-weight: 600;
-            box-shadow: 0 2px 8px rgba(255, 158, 199, 0.3);
+            box-shadow: var(--shadow-sm);
+            min-height: 44px;
         }
 
         .info-toggle:hover {
@@ -127,10 +219,15 @@
             box-shadow: 0 4px 12px rgba(255, 158, 199, 0.4);
         }
 
+        .info-toggle:focus {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
         .info-toggle::after {
             content: '▼';
             font-size: 0.8em;
-            transition: transform 0.3s;
+            transition: transform var(--transition-base);
         }
 
         .info-toggle.expanded::after {
@@ -140,76 +237,79 @@
         .info-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-out;
+            transition: max-height var(--transition-base);
             margin-top: 0;
         }
 
         .info-content.expanded {
             max-height: 1000px;
-            margin-top: 15px;
+            margin-top: var(--spacing-md);
         }
 
         .info-content p {
-            margin: 10px 0;
-            line-height: 1.6;
-            color: #2C3E50;
-            font-size: 0.95em;
+            margin: var(--spacing-md) 0;
+            line-height: var(--line-height-base);
+            color: var(--color-text);
+            font-size: var(--font-size-sm);
         }
 
         .info-content strong {
-            color: #FF9EC7;
+            color: var(--color-primary);
             font-weight: 700;
         }
 
         .info-content ul {
-            margin: 10px 0;
-            padding-left: 20px;
-            color: #2C3E50;
+            margin: var(--spacing-md) 0;
+            padding-left: var(--spacing-xl);
+            color: var(--color-text);
         }
 
         .info-content li {
-            margin: 8px 0;
-            line-height: 1.6;
+            margin: var(--spacing-sm) 0;
+            line-height: var(--line-height-base);
         }
 
         /* 欄位群組 */
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-xl);
         }
 
         /* 標籤樣式 - 溫暖色調 */
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: var(--spacing-sm);
             font-weight: 600;
-            font-size: 1.1em;
-            color: #2C3E50;
+            font-size: var(--font-size-lg);
+            color: var(--color-text);
+            line-height: var(--line-height-base);
         }
 
         /* 下拉式選單樣式 - 毛玻璃效果 */
         select {
             width: 100%;
-            padding: 12px 10px;
+            padding: var(--spacing-md) var(--spacing-md);
             border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 12px;
+            border-radius: var(--radius-sm);
             box-sizing: border-box;
-            font-size: 1.1em;
-            background: rgba(255, 255, 255, 0.3);
+            font-size: var(--font-size-lg);
+            font-family: var(--font-family-base);
+            background: var(--glass-bg-light);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            color: #2C3E50;
+            color: var(--color-text);
             min-height: 48px; 
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all var(--transition-base);
+            box-shadow: var(--shadow-sm);
         }
 
         select:focus {
-            outline: none;
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
             border-color: rgba(255, 158, 199, 0.6);
-            background: rgba(255, 255, 255, 0.4);
+            background: var(--glass-bg-lighter);
             box-shadow: 0 4px 12px rgba(255, 158, 199, 0.2);
             transform: translateY(-1px);
         }
@@ -221,30 +321,31 @@
             content: '▼';
             font-size: 1em;
             position: absolute;
-            right: 15px;
+            right: var(--spacing-md);
             top: 50%;
             transform: translateY(-50%);
             pointer-events: none;
-            color: #FF9EC7; /* 粉色箭頭 */
+            color: var(--color-primary);
             font-weight: bold;
         }
 
         /* 計算按鈕樣式 - 漸變背景 + 毛玻璃效果 */
         button:not(#language-toggle):not(.info-toggle):not(.result-action-btn) { 
             width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #FF9EC7 0%, #FFB84D 100%);
-            color: #2C3E50;
+            padding: var(--spacing-md);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            color: var(--color-text);
             border: none;
-            border-radius: 16px;
-            font-size: 1.2em;
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-xl);
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
+            transition: all var(--transition-base);
+            margin-top: var(--spacing-md);
             box-shadow: 0 4px 16px rgba(255, 158, 199, 0.3);
             position: relative;
             overflow: hidden;
+            min-height: 48px;
         }
 
         button:not(#language-toggle):not(.info-toggle):not(.result-action-btn)::before {
@@ -255,7 +356,7 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s;
+            transition: left var(--transition-slow);
         }
 
         button:not(#language-toggle):not(.info-toggle):not(.result-action-btn):hover {
@@ -267,6 +368,11 @@
             left: 100%;
         }
 
+        button:not(#language-toggle):not(.info-toggle):not(.result-action-btn):focus {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
         button:not(#language-toggle):not(.info-toggle):not(.result-action-btn):active {
             transform: translateY(0);
             box-shadow: 0 2px 8px rgba(255, 158, 199, 0.3);
@@ -274,17 +380,17 @@
 
         /* 結果顯示區 - 毛玻璃卡片設計 */
         #result_area {
-            margin-top: 30px;
-            padding: 20px;
+            margin-top: var(--spacing-3xl);
+            padding: var(--spacing-xl);
             border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 20px;
+            border-radius: var(--radius-lg);
             text-align: center;
-            background: rgba(255, 255, 255, 0.3);
+            background: var(--glass-bg-light);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             min-height: 100px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-            animation: fadeIn 0.5s ease-out;
+            box-shadow: var(--shadow-md);
+            animation: fadeIn var(--transition-slow) ease-out;
         }
 
         @keyframes fadeIn {
@@ -298,46 +404,104 @@
             }
         }
 
+        @keyframes numberCount {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
         #result_area p {
-            font-size: 1.1em;
+            font-size: var(--font-size-lg);
             font-weight: 600;
-            margin: 10px 0;
-            color: #2C3E50;
+            margin: var(--spacing-md) 0;
+            color: var(--color-text);
+            line-height: var(--line-height-base);
         }
         #result_area strong {
-            font-size: 1.5em;
-            color: #E91E63; /* 更深的粉紅色，提高對比度 */
+            font-size: var(--font-size-2xl);
+            color: var(--color-primary-dark);
             font-weight: 800;
             text-shadow: 0 2px 4px rgba(233, 30, 99, 0.2);
             letter-spacing: 0.5px;
+            font-family: var(--font-family-mono);
+            animation: numberCount var(--transition-base) ease-out;
+        }
+        
+        /* 錯誤訊息卡片樣式 */
+        .error-card {
+            background: rgba(255, 107, 107, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin: var(--spacing-md) 0;
+        }
+        
+        .error-card-title {
+            color: var(--color-error);
+            font-weight: 700;
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .error-card-message {
+            color: var(--color-text);
+            margin: var(--spacing-md) 0;
+            line-height: var(--line-height-base);
+        }
+        
+        .error-card-suggestion {
+            color: var(--color-warning);
+            font-size: var(--font-size-sm);
+            margin-top: var(--spacing-md);
+            font-weight: 600;
+            padding: var(--spacing-md);
+            background: rgba(255, 184, 77, 0.1);
+            border-radius: var(--radius-sm);
         }
 
-        /* 冷水提示樣式 - 改為懸停顯示 */
+        /* 冷水提示樣式 - 互動標記（懸停顯示） */
         .cold-water-warning {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin-left: 8px;
-            padding: 4px 10px;
-            background: rgba(255, 184, 77, 0.15);
+            margin-left: var(--spacing-sm);
+            padding: var(--spacing-xs) var(--spacing-md);
+            background: rgba(255, 184, 77, 0.2);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
-            color: #FFB84D;
-            font-size: 0.9em;
+            color: var(--color-warning);
+            font-size: var(--font-size-sm);
             font-weight: 600;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 184, 77, 0.3);
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(255, 184, 77, 0.4);
             cursor: help;
             position: relative;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 6px rgba(255, 184, 77, 0.15);
+            transition: all var(--transition-base);
+            box-shadow: 0 2px 6px rgba(255, 184, 77, 0.2);
             line-height: 1.2;
+            min-width: 24px;
+            min-height: 24px;
         }
 
         .cold-water-warning:hover {
-            background: rgba(255, 184, 77, 0.25);
+            background: rgba(255, 184, 77, 0.3);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(255, 184, 77, 0.25);
+            box-shadow: 0 4px 12px rgba(255, 184, 77, 0.3);
+        }
+        
+        .cold-water-warning:focus {
+            outline: 2px solid var(--color-warning);
+            outline-offset: 2px;
         }
 
         .cold-water-warning::after {
@@ -346,18 +510,18 @@
             bottom: 100%;
             left: 50%;
             transform: translateX(-50%);
-            margin-bottom: 8px;
-            padding: 10px 14px;
+            margin-bottom: var(--spacing-sm);
+            padding: var(--spacing-md) var(--spacing-md);
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            color: #2C3E50;
-            font-size: 0.9em;
-            border-radius: 12px;
+            color: var(--color-text);
+            font-size: var(--font-size-sm);
+            border-radius: var(--radius-sm);
             white-space: nowrap;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.3s ease;
+            transition: all var(--transition-base);
             z-index: 1000;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
             border: 1px solid rgba(255, 184, 77, 0.3);
@@ -376,18 +540,20 @@
         }
 
         .result-action-btn {
-            padding: 10px 18px;
+            padding: var(--spacing-md) var(--spacing-lg);
             background: rgba(255, 184, 77, 0.3);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            color: #2C3E50;
+            color: var(--color-text);
             border: 1px solid rgba(255, 184, 77, 0.5);
-            border-radius: 12px;
-            font-size: 0.9em;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all var(--transition-base);
             font-weight: 600;
-            box-shadow: 0 2px 8px rgba(255, 184, 77, 0.2);
+            box-shadow: var(--shadow-sm);
+            min-height: 44px;
+            min-width: 44px;
         }
 
         .result-action-btn:hover {
@@ -396,23 +562,28 @@
             box-shadow: 0 4px 12px rgba(255, 184, 77, 0.3);
         }
 
+        .result-action-btn:focus {
+            outline: 2px solid var(--color-secondary);
+            outline-offset: 2px;
+        }
+
         .result-action-btn:active {
             transform: translateY(0);
         }
 
         .copy-success-toast {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: var(--spacing-xl);
+            right: var(--spacing-xl);
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            color: #2C3E50;
-            padding: 14px 24px;
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            color: var(--color-text);
+            padding: var(--spacing-md) var(--spacing-2xl);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
             z-index: 10000;
-            animation: slideIn 0.3s ease-out;
+            animation: slideIn var(--transition-base) ease-out;
             border: 1px solid rgba(255, 158, 199, 0.3);
             font-weight: 600;
         }
@@ -427,221 +598,246 @@
                 opacity: 1;
             }
         }
+        
 
         /* 響應式設計 - 電腦版 (平板和桌面) */
         @media (min-width: 768px) {
             body {
-                padding: 40px;
+                padding: var(--spacing-4xl);
             }
 
             .calculator-container {
                 max-width: 600px;
-                padding: 35px;
-                padding-top: 30px;
-                border-radius: 28px;
+                padding: var(--spacing-3xl);
+                padding-top: var(--spacing-3xl);
+                border-radius: var(--radius-xl);
             }
 
             h1 {
-                font-size: 2.2em;
-                margin-bottom: 40px;
+                font-size: var(--font-size-4xl);
+                margin-bottom: var(--spacing-4xl);
             }
 
             label {
-                font-size: 1.2em;
+                font-size: var(--font-size-xl);
+                margin-bottom: var(--spacing-sm);
             }
 
             select {
-                font-size: 1.15em;
-                padding: 14px 12px;
+                font-size: 1.15rem;
+                padding: var(--spacing-md) var(--spacing-md);
             }
 
             button:not(#language-toggle) {
-                font-size: 1.3em;
-                padding: 18px;
+                font-size: 1.3rem;
+                padding: var(--spacing-lg);
             }
 
             #result_area {
-                padding: 20px;
+                padding: var(--spacing-xl);
                 min-height: 120px;
             }
 
             #result_area p {
-                font-size: 1.2em;
+                font-size: var(--font-size-xl);
             }
 
             #result_area strong {
-                font-size: 1.7em;
+                font-size: 1.7rem;
             }
 
-            .cold-water-warning {
-                font-size: 0.95em;
-                padding: 5px 12px;
-                margin-left: 10px;
+        }
+        
+        /* 橫向顯示優化 */
+        @media (max-height: 600px) and (orientation: landscape) {
+            body {
+                padding: var(--spacing-lg);
+            }
+            
+            .calculator-container {
+                padding: var(--spacing-lg);
+                padding-top: var(--spacing-xl);
+            }
+            
+            h1 {
+                font-size: var(--font-size-2xl);
+                margin-bottom: var(--spacing-lg);
+            }
+            
+            .form-group {
+                margin-bottom: var(--spacing-md);
             }
         }
 
         /* 響應式設計 - 手機版 */
         @media (max-width: 767px) {
             body {
-                padding: 15px;
+                padding: var(--spacing-md);
             }
 
             .calculator-container {
-                padding: 20px;
+                padding: var(--spacing-xl);
                 padding-top: 60px; /* 為語言切換按鈕留出空間 */
-                border-radius: 10px;
+                border-radius: var(--radius-md);
             }
 
             /* 語言切換按鈕在手機上的調整 */
             #language-toggle {
-                top: 15px;
-                right: 15px;
-                padding: 8px 12px;
-                font-size: 0.9em;
+                top: var(--spacing-md);
+                right: var(--spacing-md);
+                padding: var(--spacing-sm) var(--spacing-md);
+                font-size: var(--font-size-xs);
             }
 
             h1 {
-                font-size: 1.5em;
-                margin-top: 10px;
-                margin-bottom: 25px;
+                font-size: var(--font-size-2xl);
+                margin-top: var(--spacing-md);
+                margin-bottom: var(--spacing-2xl);
                 padding-right: 80px; /* 為語言按鈕留出空間 */
                 padding-left: 0;
             }
 
             .form-group {
-                margin-bottom: 18px;
+                margin-bottom: var(--spacing-lg);
             }
 
             label {
-                font-size: 1em;
-                margin-bottom: 6px;
+                font-size: var(--font-size-base);
+                margin-bottom: var(--spacing-sm);
             }
 
             select {
-                font-size: 1em;
-                padding: 14px 10px;
+                font-size: var(--font-size-base);
+                padding: var(--spacing-md) var(--spacing-md);
                 min-height: 48px; /* 確保觸控友善 */
             }
 
             button:not(#language-toggle) {
-                font-size: 1.1em;
-                padding: 16px;
-                margin-top: 15px;
+                font-size: var(--font-size-lg);
+                padding: var(--spacing-lg);
+                margin-top: var(--spacing-md);
             }
 
             #result_area {
-                margin-top: 25px;
-                padding: 15px;
+                margin-top: var(--spacing-2xl);
+                padding: var(--spacing-md);
                 min-height: 90px;
             }
 
             #result_area p {
-                font-size: 1em;
-                margin: 8px 0;
+                font-size: var(--font-size-base);
+                margin: var(--spacing-sm) 0;
             }
 
             #result_area strong {
-                font-size: 1.4em;
+                font-size: 1.4rem;
             }
 
-            .cold-water-warning {
-                font-size: 0.85em;
-                padding: 4px 10px;
-                margin-left: 6px;
-            }
         }
 
         /* 超小螢幕手機 (小於 360px) */
         @media (max-width: 359px) {
             body {
-                padding: 10px;
+                padding: var(--spacing-md);
             }
 
             .calculator-container {
-                padding: 15px;
+                padding: var(--spacing-md);
                 padding-top: 55px;
             }
 
             h1 {
-                font-size: 1.3em;
+                font-size: 1.3rem;
                 padding-right: 70px;
             }
 
             label {
-                font-size: 0.95em;
+                font-size: 0.95rem;
             }
 
             select {
-                font-size: 0.95em;
+                font-size: 0.95rem;
             }
 
             button:not(#language-toggle) {
-                font-size: 1em;
+                font-size: var(--font-size-base);
+            }
+        }
+        
+        /* Fallback for browsers that don't support backdrop-filter */
+        @supports not (backdrop-filter: blur(10px)) {
+            .calculator-container,
+            .info-section,
+            select,
+            .result-action-btn {
+                background: rgba(255, 255, 255, 0.9);
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="calculator-container">
+    <div class="calculator-container" role="main" aria-label="奶粉沖泡計算機">
         
-        <button id="language-toggle" onclick="switchLanguage()">English</button>
+        <button id="language-toggle" onclick="switchLanguage()" aria-label="切換語言" aria-pressed="false">English</button>
 
         <h1 id="mainTitle">👶 奶粉沖泡水量計算 (10ml 單位)</h1>
 
         <!-- 說明與引導區塊 -->
-        <div class="info-section">
-            <button class="info-toggle" id="infoToggle" onclick="toggleInfo()">
+        <div class="info-section" role="region" aria-labelledby="infoToggle">
+            <button class="info-toggle" id="infoToggle" onclick="toggleInfo()" aria-expanded="false" aria-controls="infoContent">
                 <span id="infoToggleText">📖 使用說明與常見問題</span>
             </button>
-            <div class="info-content" id="infoContent">
+            <div class="info-content" id="infoContent" role="region" aria-labelledby="infoToggle">
                 <div id="infoContentText">
                     <!-- 內容將由 JavaScript 動態填入 -->
                 </div>
             </div>
         </div>
 
-        <div class="form-group">
-            <label id="labelMilkAmount" for="milk_amount">總奶量 (ml):</label>
-            <div class="select-wrapper">
-                <select id="milk_amount" name="milk_amount">
-                    <option value="120">120 ml</option>
-                    <option value="150">150 ml</option>
-                    <option value="180" selected>180 ml</option>
-                    <option value="210">210 ml</option>
-                    <option value="240">240 ml</option>
-                </select>
+        <form role="form" aria-label="計算參數設定">
+            <div class="form-group">
+                <label id="labelMilkAmount" for="milk_amount">總奶量 (ml):</label>
+                <div class="select-wrapper">
+                    <select id="milk_amount" name="milk_amount" aria-label="總奶量" aria-describedby="labelMilkAmount">
+                        <option value="120">120 ml</option>
+                        <option value="150">150 ml</option>
+                        <option value="180" selected>180 ml</option>
+                        <option value="210">210 ml</option>
+                        <option value="240">240 ml</option>
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label id="labelHotWater" for="hot_water_temp">熱水溫度 (℃):</label>
-            <div class="select-wrapper">
-                <select id="hot_water_temp" name="hot_water_temp">
-                    <option value="70">70 ℃</option>
-                    <option value="80" selected>80 ℃</option>
-                    <option value="90">90 ℃</option>
-                    <option value="100">100 ℃</option>
-                </select>
+            <div class="form-group">
+                <label id="labelHotWater" for="hot_water_temp">熱水溫度 (℃):</label>
+                <div class="select-wrapper">
+                    <select id="hot_water_temp" name="hot_water_temp" aria-label="熱水溫度" aria-describedby="labelHotWater">
+                        <option value="70">70 ℃</option>
+                        <option value="80" selected>80 ℃</option>
+                        <option value="90">90 ℃</option>
+                        <option value="100">100 ℃</option>
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label id="labelColdWater" for="cold_water_temp">冷水溫度 (℃):<span id="coldWaterWarning" class="cold-water-warning" data-tooltip="">💡</span></label>
-            <div class="select-wrapper">
-                <select id="cold_water_temp" name="cold_water_temp">
-                    <option value="16">16 ℃</option>
-                    <option value="18">18 ℃</option>
-                    <option value="20" selected>20 ℃</option>
-                    <option value="22">22 ℃</option>
-                    <option value="24">24 ℃</option>
-                    <option value="26">26 ℃</option>
-                </select>
+            <div class="form-group">
+                <label id="labelColdWater" for="cold_water_temp">冷水溫度 (℃):<span id="coldWaterWarning" class="cold-water-warning" data-tooltip="" role="button" tabindex="0" aria-label="冷水安全提示">💡</span></label>
+                <div class="select-wrapper">
+                    <select id="cold_water_temp" name="cold_water_temp" aria-label="冷水溫度" aria-describedby="labelColdWater">
+                        <option value="16">16 ℃</option>
+                        <option value="18">18 ℃</option>
+                        <option value="20" selected>20 ℃</option>
+                        <option value="22">22 ℃</option>
+                        <option value="24">24 ℃</option>
+                        <option value="26">26 ℃</option>
+                    </select>
+                </div>
             </div>
-        </div>
+        </form>
         
-        <div id="result_area">
-            <p id="initialPrompt">請選擇上方參數並點擊「計算」</p>
+        <div id="result_area" role="region" aria-live="polite" aria-atomic="true" aria-label="計算結果">
+            <p id="initialPrompt">請選擇上方參數，系統將自動計算</p>
         </div>
         
     </div>
@@ -656,12 +852,14 @@
                 labelHotWater: '熱水溫度（℃）：',
                 labelColdWater: '冷水溫度（℃）：',
                 coldWaterWarning: '💡 提醒：請使用煮沸過後放涼的開水，或乾淨的飲用水',
+                safetyNotice: '提醒：請使用煮沸過後放涼的開水，或乾淨的飲用水',
                 initialPrompt: '請選擇參數，系統將自動計算',
                 resultBest: '推薦配比：',
                 resultHot: '熱水（{temp}℃）：',
                 resultCold: '冷水（{temp}℃）：',
                 resultActualTemp: '最終水溫：',
                 resultRangeNote: '✓ 符合 {min}~{max}℃ 理想範圍',
+                resultSteps: '<div style="margin-top: 8px;"><strong>操作步驟：</strong></div><div style="margin-top: 8px; line-height: 1.8;">① 先加入熱水 <strong>{hot}ml</strong><br>② 倒入奶粉，輕輕搖晃確保完全融解<br>③ 待奶粉完全融解後，再加入冷水 <strong>{cold}ml</strong></div>',
                 errorCannotMixTitle: '⚠️ 無法調配出合適溫度',
                 errorCannotMixMsg: '目前選擇的溫度組合無法達到 {min}~{max}℃ 的理想範圍。',
                 errorCannotMixSuggestion: '💡 建議：將熱水調整為 80℃ 或 90℃，或將冷水調整為 20℃ 以下。',
@@ -674,10 +872,12 @@
                 infoWhyTemp: '為什麼目標溫度是 42-48℃？',
                 infoWhyTempContent: '42-48℃ 的理想溫度能確保奶粉完全溶解、保留營養，且寶寶可直接飲用。',
                 infoHowToUse: '如何使用？',
-                infoHowToUseContent: '<ul><li>選擇總奶量（建議：180ml）</li><li>選擇熱水溫度（推薦：80-90℃）</li><li>選擇冷水溫度（推薦：20℃）</li><li>系統自動計算並顯示最佳配比</li><li>按結果操作：先倒熱水，再加冷水，最後加奶粉</li></ul>',
+                infoHowToUseContent: '<ul><li>選擇總奶量（建議：180ml）</li><li>選擇熱水溫度（推薦：80-90℃）</li><li>選擇冷水溫度（推薦：20℃）</li><li>系統自動計算並顯示最佳配比</li><li><strong>正確操作步驟：</strong>先加入熱水 → 倒入奶粉並輕輕搖晃確保完全融解 → 待奶粉完全融解後，再加入冷水調節至理想溫度</li></ul>',
                 copyResult: '📋 複製',
                 copySuccess: '✅ 已複製',
-                shareResult: '🔗 分享結果'
+                shareResult: '🔗 分享結果',
+                shareSuccess: '✅ 分享成功',
+                shareError: '❌ 分享失敗，請手動複製結果'
             },
             'en': {
                 appTitle: '🍼 Formula Water Calculator',
@@ -686,12 +886,14 @@
                 labelHotWater: 'Hot Water Temp. (℃):',
                 labelColdWater: 'Cold Water Temp. (℃):',
                 coldWaterWarning: '💡 Reminder: Please use boiled and cooled water, or clean drinking water',
+                safetyNotice: 'Reminder: Please use boiled and cooled water, or clean drinking water',
                 initialPrompt: 'Select parameters to see optimal ratio',
                 resultBest: 'Optimal Ratio:',
                 resultHot: 'Hot Water ({temp}℃):',
                 resultCold: 'Cold Water ({temp}℃):',
                 resultActualTemp: 'Final Temperature:',
                 resultRangeNote: '✓ Within ideal range {min}~{max}℃',
+                resultSteps: '<div style="margin-top: 8px;"><strong>Steps:</strong></div><div style="margin-top: 8px; line-height: 1.8;">① Add hot water <strong>{hot}ml</strong> first<br>② Add formula powder and shake gently until fully dissolved<br>③ After formula is completely dissolved, add cold water <strong>{cold}ml</strong></div>',
                 errorCannotMixTitle: '⚠️ Cannot Create Suitable Temperature',
                 errorCannotMixMsg: 'The selected temperature combination cannot reach the ideal range of {min}~{max}℃.',
                 errorCannotMixSuggestion: '💡 Suggestion: Adjust hot water to 80℃ or 90℃, or adjust cold water to below 20℃.',
@@ -704,10 +906,12 @@
                 infoWhyTemp: 'Why is the target temperature 42-48℃?',
                 infoWhyTempContent: 'The ideal 42-48℃ range ensures complete dissolution, preserves nutrients, and is ready for your baby to drink.',
                 infoHowToUse: 'How to use?',
-                infoHowToUseContent: '<ul><li>Select total volume (recommended: 180ml)</li><li>Select hot water temperature (recommended: 80-90℃)</li><li>Select cold water temperature (recommended: 20℃)</li><li>System automatically calculates and displays optimal ratio</li><li>Follow result: pour hot water first, then cold water, finally add formula powder</li></ul>',
+                infoHowToUseContent: '<ul><li>Select total volume (recommended: 180ml)</li><li>Select hot water temperature (recommended: 80-90℃)</li><li>Select cold water temperature (recommended: 20℃)</li><li>System automatically calculates and displays optimal ratio</li><li><strong>Correct steps:</strong> Add hot water first → Add formula powder and shake gently until fully dissolved → After formula is completely dissolved, add cold water to adjust to ideal temperature</li></ul>',
                 copyResult: '📋 Copy',
                 copySuccess: '✅ Copied',
-                shareResult: '🔗 Share Result'
+                shareResult: '🔗 Share Result',
+                shareSuccess: '✅ Shared successfully',
+                shareError: '❌ Share failed, please copy manually'
             }
         };
 
@@ -771,14 +975,15 @@
             
             const labelColdWaterEl = document.getElementById('labelColdWater');
             if (labelColdWaterEl) {
-                // 使用 innerHTML 同時設置 label 文字和提示，確保提示元素始終存在
-                labelColdWaterEl.innerHTML = lang.labelColdWater + '<span id="coldWaterWarning" class="cold-water-warning" data-tooltip="' + lang.coldWaterWarning + '">💡</span>';
+                // 使用 innerHTML 同時設置 label 文字和提示圖標
+                labelColdWaterEl.innerHTML = lang.labelColdWater + '<span id="coldWaterWarning" class="cold-water-warning" data-tooltip="' + lang.coldWaterWarning + '" role="button" tabindex="0" aria-label="冷水安全提示">💡</span>';
             }
             
-            // 更新語言切換按鈕文字：目前是中文時顯示"English"，目前是英文時顯示"中文"
+            // 更新語言切換按鈕文字和 ARIA 狀態
             const toggleButton = document.getElementById('language-toggle');
             if (toggleButton) {
                 toggleButton.textContent = (currentLang === 'zh') ? 'English' : '中文';
+                toggleButton.setAttribute('aria-pressed', currentLang === 'zh' ? 'true' : 'false');
             }
             
             // 更新說明內容
@@ -787,6 +992,56 @@
             calculateWaterAmount(true); 
         }
 
+        // URL 參數管理
+        function updateURLParams() {
+            const milkAmount = document.getElementById('milk_amount').value;
+            const hotWaterTemp = document.getElementById('hot_water_temp').value;
+            const coldWaterTemp = document.getElementById('cold_water_temp').value;
+            
+            const params = new URLSearchParams();
+            params.set('milk', milkAmount);
+            params.set('hot', hotWaterTemp);
+            params.set('cold', coldWaterTemp);
+            
+            const newURL = window.location.origin + window.location.pathname + '?' + params.toString();
+            window.history.replaceState({}, '', newURL);
+        }
+        
+        function loadURLParams() {
+            const params = new URLSearchParams(window.location.search);
+            const milkAmount = params.get('milk');
+            const hotWaterTemp = params.get('hot');
+            const coldWaterTemp = params.get('cold');
+            
+            let hasParams = false;
+            
+            if (milkAmount) {
+                const milkSelect = document.getElementById('milk_amount');
+                if (milkSelect && Array.from(milkSelect.options).some(opt => opt.value === milkAmount)) {
+                    milkSelect.value = milkAmount;
+                    hasParams = true;
+                }
+            }
+            
+            if (hotWaterTemp) {
+                const hotSelect = document.getElementById('hot_water_temp');
+                if (hotSelect && Array.from(hotSelect.options).some(opt => opt.value === hotWaterTemp)) {
+                    hotSelect.value = hotWaterTemp;
+                    hasParams = true;
+                }
+            }
+            
+            if (coldWaterTemp) {
+                const coldSelect = document.getElementById('cold_water_temp');
+                if (coldSelect && Array.from(coldSelect.options).some(opt => opt.value === coldWaterTemp)) {
+                    coldSelect.value = coldWaterTemp;
+                    hasParams = true;
+                }
+            }
+            
+            return hasParams;
+        }
+        
         // 任務 4：保存和載入設定
         function saveSettings() {
             const settings = {
@@ -858,11 +1113,81 @@
             const toast = document.createElement('div');
             toast.className = 'copy-success-toast';
             toast.textContent = lang.copySuccess;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'polite');
             document.body.appendChild(toast);
             setTimeout(() => {
                 toast.style.animation = 'slideIn 0.3s ease-out reverse';
                 setTimeout(() => document.body.removeChild(toast), 300);
             }, 2000);
+        }
+        
+        // 分享功能實現
+        async function shareResult() {
+            const resultArea = document.getElementById('result_area');
+            if (!resultArea) return;
+            
+            const resultText = resultArea.innerText || resultArea.textContent;
+            if (!resultText || resultText.includes('initialPrompt')) return;
+            
+            const lang = languageData[currentLang];
+            
+            // 確保 URL 包含當前參數
+            updateURLParams();
+            const shareURL = window.location.href;
+            
+            const shareData = {
+                title: lang.appTitle,
+                text: `${lang.appTitle}\n\n${resultText}`,
+                url: shareURL
+            };
+            
+            try {
+                if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+                    await navigator.share(shareData);
+                    showToast(lang.shareSuccess);
+                } else {
+                    // Fallback: 複製到剪貼板（包含 URL）
+                    const textToCopy = `${resultText}\n\n${shareURL}`;
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(textToCopy);
+                        showCopySuccess();
+                    } else {
+                        fallbackCopy(textToCopy);
+                    }
+                }
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.warn('分享失敗:', err);
+                    showToast(lang.shareError);
+                }
+            }
+        }
+        
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'copy-success-toast';
+            toast.textContent = message;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'polite');
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 2000);
+        }
+        
+        // 防抖函數
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
         }
 
         function calculateWaterAmount(isLanguageSwitch = false) {
@@ -877,6 +1202,9 @@
 
             // 保存設定
             saveSettings();
+            
+            // 更新 URL 參數
+            updateURLParams();
 
             if (isLanguageSwitch && resultArea.innerHTML.includes('initialPrompt')) {
                 resultArea.innerHTML = `<p id="initialPrompt">${lang.initialPrompt}</p>`;
@@ -891,9 +1219,13 @@
             if (T_min < Tc || T_max > Th) {
                 let errorMsg = lang.errorCannotMixMsg.replace('{Th}', Th).replace('{Tc}', Tc).replace('{min}', T_min).replace('{max}', T_max);
                 let suggestion = lang.errorCannotMixSuggestion || '';
-                resultArea.innerHTML = `<p style="color:#FF6B6B; font-weight: bold; font-size: 1.1em;">${lang.errorCannotMixTitle}</p>
-                                        <p style="margin: 12px 0; color: #2C3E50;">${errorMsg}</p>
-                                        <p style="font-size:0.95em; color:#FFB84D; margin-top: 12px; font-weight: 600;">${suggestion}</p>`;
+                resultArea.innerHTML = `
+                    <div class="error-card" role="alert">
+                        <div class="error-card-title">${lang.errorCannotMixTitle}</div>
+                        <div class="error-card-message">${errorMsg}</div>
+                        <div class="error-card-suggestion">${suggestion}</div>
+                    </div>
+                `;
                 return;
             }
 
@@ -919,31 +1251,61 @@
                 let note = lang.resultRangeNote.replace('{min}', T_min).replace('{max}', T_max);
                 let hotLabel = lang.resultHot.replace('{temp}', Th);
                 let coldLabel = lang.resultCold.replace('{temp}', Tc);
+                let steps = lang.resultSteps.replace('{hot}', bestVh).replace('{cold}', bestVc);
 
                 resultArea.innerHTML = `
-                    <p style="font-size: 1.2em; margin-bottom: 15px; font-weight: 700; color: #2C3E50;">${lang.resultBest}</p>
+                    <p style="font-size: 1.2em; margin-bottom: 15px; font-weight: 700; color: var(--color-text);">${lang.resultBest}</p>
                     <hr style="border: none; border-top: 2px solid rgba(255, 158, 199, 0.3); margin: 15px 0;">
-                    <p style="font-size: 1.15em; margin: 14px 0; color: #2C3E50; font-weight: 600;">${hotLabel}<strong style="color: #E91E63; font-size: 1.6em; font-weight: 800; text-shadow: 0 2px 4px rgba(233, 30, 99, 0.25); letter-spacing: 0.5px; margin-left: 8px;">${bestVh} ml</strong></p>
-                    <p style="font-size: 1.15em; margin: 14px 0; color: #2C3E50; font-weight: 600;">${coldLabel}<strong style="color: #E91E63; font-size: 1.6em; font-weight: 800; text-shadow: 0 2px 4px rgba(233, 30, 99, 0.25); letter-spacing: 0.5px; margin-left: 8px;">${bestVc} ml</strong></p>
+                    <p style="font-size: 1.15em; margin: 14px 0; color: var(--color-text); font-weight: 600;">${hotLabel}<strong style="color: var(--color-primary-dark); font-size: 1.6em; font-weight: 800; text-shadow: 0 2px 4px rgba(233, 30, 99, 0.25); letter-spacing: 0.5px; margin-left: 8px; font-family: var(--font-family-mono);">${bestVh} ml</strong></p>
+                    <p style="font-size: 1.15em; margin: 14px 0; color: var(--color-text); font-weight: 600;">${coldLabel}<strong style="color: var(--color-primary-dark); font-size: 1.6em; font-weight: 800; text-shadow: 0 2px 4px rgba(233, 30, 99, 0.25); letter-spacing: 0.5px; margin-left: 8px; font-family: var(--font-family-mono);">${bestVc} ml</strong></p>
                     <p style="font-size:1.15em; color:#FF6B35; margin-top: 18px; font-weight: 700;">
-                        ${lang.resultActualTemp}<strong style="color: #E91E63; font-size: 1.7em; font-weight: 800; text-shadow: 0 2px 4px rgba(233, 30, 99, 0.25); letter-spacing: 0.5px; margin-left: 8px;">${closestTemp.toFixed(1)} ℃</strong>
+                        ${lang.resultActualTemp}<strong style="color: var(--color-primary-dark); font-size: 1.7em; font-weight: 800; text-shadow: 0 2px 4px rgba(233, 30, 99, 0.25); letter-spacing: 0.5px; margin-left: 8px; font-family: var(--font-family-mono);">${closestTemp.toFixed(1)} ℃</strong>
                     </p>
-                    <p style="font-size:0.95em; color:#2C3E50; margin-top: 12px; opacity: 0.85; font-weight: 500;">${note}</p>
+                    <p style="font-size:0.95em; color:var(--color-text-light); margin-top: 12px; font-weight: 500;">${note}</p>
+                    <div style="font-size:0.9em; color:var(--color-text); margin-top: 16px; padding: 16px; background: rgba(255, 184, 77, 0.1); border-radius: 12px; line-height: 1.6;">${steps}</div>
                     <div class="result-actions">
-                        <button class="result-action-btn" onclick="copyResult()">${lang.copyResult}</button>
+                        <button class="result-action-btn" onclick="copyResult()" aria-label="${lang.copyResult}">${lang.copyResult}</button>
+                        <button class="result-action-btn" onclick="shareResult()" aria-label="${lang.shareResult}">${lang.shareResult}</button>
                     </div>
                 `;
             } else {
                  let errorMsg = lang.errorNo10xMsg.replace('{min}', T_min).replace('{max}', T_max);
-                resultArea.innerHTML = `<p style="color:#FF6B6B; font-weight: bold; font-size: 1.1em;">${lang.errorNo10xTitle}</p>
-                                        <p style="margin: 12px 0; color: #2C3E50;">${errorMsg}</p>
-                                        <p style="font-size:0.95em; color:#FFB84D; margin-top: 12px; font-weight: 600;">${lang.errorNo10xHint}</p>`;
+                resultArea.innerHTML = `
+                    <div class="error-card" role="alert">
+                        <div class="error-card-title">${lang.errorNo10xTitle}</div>
+                        <div class="error-card-message">${errorMsg}</div>
+                        <div class="error-card-suggestion">${lang.errorNo10xHint}</div>
+                    </div>
+                `;
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 任務 4：載入保存的設定
-            const settingsLoaded = loadSettings();
+            // 優先載入 URL 參數，如果沒有參數再載入 localStorage
+            const urlParamsLoaded = loadURLParams();
+            let settingsLoaded = false;
+            
+            // 如果沒有 URL 參數，才載入 localStorage 的設定
+            if (!urlParamsLoaded) {
+                settingsLoaded = loadSettings();
+            }
+            
+            // 如果有 URL 參數，使用說明預設收起；如果沒有參數，預設展開
+            const infoToggle = document.getElementById('infoToggle');
+            const infoContent = document.getElementById('infoContent');
+            if (infoToggle && infoContent) {
+                if (!urlParamsLoaded) {
+                    // 沒有參數時，預設展開
+                    infoToggle.classList.add('expanded');
+                    infoContent.classList.add('expanded');
+                    infoToggle.setAttribute('aria-expanded', 'true');
+                } else {
+                    // 有參數時，預設收起
+                    infoToggle.classList.remove('expanded');
+                    infoContent.classList.remove('expanded');
+                    infoToggle.setAttribute('aria-expanded', 'false');
+                }
+            }
             
             // 確保按鈕文字正確更新
             applyLanguage();
@@ -959,32 +1321,49 @@
                 }
             }, 100);
             
-            // 任務 1：實現即時計算功能 - 為所有 select 元素添加 change 事件監聽器
+            // 任務 1：實現即時計算功能 - 為所有 select 元素添加 change 事件監聽器（帶防抖）
             const milkAmountSelect = document.getElementById('milk_amount');
             const hotWaterTempSelect = document.getElementById('hot_water_temp');
             const coldWaterTempSelect = document.getElementById('cold_water_temp');
             
-            milkAmountSelect.addEventListener('change', calculateWaterAmount);
-            hotWaterTempSelect.addEventListener('change', calculateWaterAmount);
-            coldWaterTempSelect.addEventListener('change', calculateWaterAmount);
+            // 使用防抖機制，避免頻繁計算
+            const debouncedCalculate = debounce(calculateWaterAmount, 300);
             
-            // 任務 7：鍵盤快捷鍵支援 - 為 select 元素添加 Enter 鍵監聽
+            milkAmountSelect.addEventListener('change', debouncedCalculate);
+            hotWaterTempSelect.addEventListener('change', debouncedCalculate);
+            coldWaterTempSelect.addEventListener('change', debouncedCalculate);
+            
+            // 任務 7：鍵盤快捷鍵支援 - 為 select 元素添加 Enter 鍵和方向鍵監聽
             [milkAmountSelect, hotWaterTempSelect, coldWaterTempSelect].forEach(select => {
                 select.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         calculateWaterAmount();
-                        // 保持焦點在當前 select 上
                         select.focus();
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                        // 方向鍵選擇後自動計算
+                        setTimeout(() => debouncedCalculate(), 100);
                     }
                 });
             });
             
+            // 為安全性提示圖標添加鍵盤支援
+            const coldWaterWarning = document.getElementById('coldWaterWarning');
+            if (coldWaterWarning) {
+                coldWaterWarning.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        coldWaterWarning.click();
+                    }
+                });
+            }
+            
+            
             // 初始化說明內容
             updateInfoContent();
             
-            // 如果載入了設定，觸發一次計算
-            if (settingsLoaded) {
+            // 如果載入了設定或 URL 參數，觸發一次計算
+            if (settingsLoaded || urlParamsLoaded) {
                 setTimeout(() => calculateWaterAmount(), 100);
             }
         });
