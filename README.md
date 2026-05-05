@@ -1,49 +1,54 @@
-# 🍼 奶粉沖泡計算機 (Baby Milk Calculator)
+# 🍼 Baby Milk Calculator
 
-一個簡單實用的網頁工具，幫助您計算沖泡奶粉時熱水和冷水的最佳配比，確保水溫落在適合的範圍內（42-48℃）。
+A simple web tool to calculate the best mix of hot and cold water when preparing formula, so the blended temperature stays in a comfortable range (42–48°C).
 
-## ✨ 功能特點
+## ✨ Features
 
-- **智能計算**：自動計算熱水和冷水的最佳配比，以 10ml 為單位
-- **溫度控制**：確保混合後的水溫落在 42-48℃ 的理想範圍內，目標溫度為 45℃
-- **雙語支援**：支援繁體中文和英文介面，可隨時切換
-- **響應式設計**：優化的手機版介面，暗色主題設計
-- **即時計算**：選擇參數後立即顯示最佳配比結果
+- **Smart calculation**: Finds the best hot/cold water ratio in **10 ml** steps
+- **Temperature control**: Targets **45°C** and keeps the mix within **42–48°C**
+- **Bilingual UI**: Traditional Chinese and English; switch anytime
+- **Responsive UI**: Mobile-friendly layout with a dark theme
+- **Instant results**: Updates as soon as you choose your parameters
 
-## 🎯 使用方法
+## 🎯 How to use
 
-1. 選擇總奶量（120ml、150ml、180ml 或 210ml）
-2. 選擇熱水溫度（70℃、80℃、90℃ 或 100℃）
-3. 選擇冷水溫度（16℃、18℃、20℃、22℃、24℃ 或 26℃）
-4. 點擊「計算最佳 10ml 倍數配比」按鈕
-5. 查看計算結果，包括所需的熱水和冷水量，以及混合後的實際溫度
+1. Pick total volume (**120**, **150**, **180**, or **210 ml**)
+2. Pick hot water temperature (**70**, **80**, **90**, or **100°C**)
+3. Pick cold water temperature (**16**, **18**, **20**, **22**, **24**, or **26°C**)
+4. Tap **Calculate best 10 ml ratio**
+5. Read the suggested hot/cold amounts and the estimated mixed temperature
 
-## 🔧 技術說明
+## 🔧 Technical notes
 
-- **純前端實現**：使用 HTML、CSS 和 JavaScript，無需後端服務器
-- **計算邏輯**：使用熱平衡公式計算混合溫度
+- **Client-side only**: HTML, CSS, and JavaScript—no backend required
+- **Physics**: Uses a simple heat-balance mix formula:
+
   ```
-  混合溫度 = (熱水量 × 熱水溫度 + 冷水量 × 冷水溫度) / 總水量
+  mixed_temp = (hot_ml × hot_temp + cold_ml × cold_temp) / total_ml
   ```
-- **優化算法**：遍歷所有可能的 10ml 倍數組合，找出最接近理想溫度（45℃）的配比
 
-## 📱 使用場景
+- **Optimization**: Tries all valid **10 ml** combinations and picks the one closest to **45°C**
 
-適合需要：
-- 快速計算奶粉沖泡水溫的父母
-- 確保水溫在安全範圍內的照護者
-- 需要精確配比的育兒場景
+## 📱 Who it’s for
 
-## 🌐 瀏覽器支援
+- Parents who want a quick formula-water temperature estimate
+- Caregivers who want to stay in a safe, comfortable band
+- Anyone who wants a practical ratio without mental math
 
-支援所有現代瀏覽器（Chrome、Firefox、Safari、Edge 等）
+## 🌐 Browser support
 
-## 📄 授權
+Works in modern browsers (Chrome, Firefox, Safari, Edge, etc.)
 
-詳見 [LICENSE](LICENSE) 文件
+## 📄 License
 
-## 💡 注意事項
+See [LICENSE](LICENSE).
 
-- 此工具僅供參考，實際使用時請根據奶粉品牌建議的沖泡溫度進行調整
-- 計算結果為近似值，實際溫度可能因環境因素而略有差異
-- 請確保熱水和冷水的溫度設定合理，否則可能無法調配出目標溫度範圍
+## 💡 Disclaimer
+
+- For reference only—follow your formula brand’s preparation instructions
+- Results are approximate; actual temperature can vary with environment and measurement
+- If hot/cold inputs are unrealistic, there may be **no** mix that lands in the target range
+
+---
+
+**中文說明**：[README.zh-TW.md](README.zh-TW.md)
